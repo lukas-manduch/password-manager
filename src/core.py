@@ -10,6 +10,10 @@ class PasswordFileManager:
     entries and writes them in such a way, that they can be easily
     distinguished.
     """
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, ignore_errors=False):
         self.file_path = file_path
         # Read contents to memory
+
+    def load_contents(self) -> dict:
+        """Load contents of file to memory"""
+        pass

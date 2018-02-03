@@ -15,6 +15,7 @@ def get_file():
 
 
 if __name__ == '__main__':
+    settings = Settings(sys.argv)
     password = get_password()
     file_path = os.path.abspath(get_file())
     print("Using file: " + file_path)
