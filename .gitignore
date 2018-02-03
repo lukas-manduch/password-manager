@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Python files
+*.pyc
+__pycache__/*
+
+# Editor files
+*~
+~.swp
