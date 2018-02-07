@@ -6,10 +6,13 @@ working with files, encryption, and searching
 import constants
 import re
 
-whitespace_pattern = re.compile(r'\s+')
+
+whitespace_pattern = re.compile(r'\s')
+
 
 class PasswordFileManager:
-    """Class for reading and writing binary data to file. Takes list of
+    """
+    Class for reading and writing binary data to file. Takes list of
     entries and writes them in such a way, that they can be easily
     distinguished.
 
@@ -26,7 +29,6 @@ class PasswordFileManager:
     def __iter__(self):
         return PasswordFileManagerIterator(self.contents)
 
-
     def load_contents(self) -> dict:
         """Load contents of file to memory"""
         contents = read_file(self.file_path).split(constants.SPLITTER)
@@ -35,16 +37,7 @@ class PasswordFileManager:
         self.contents = list(map(bytes.fromhex, contents))
 
 
-def read_file(file_path: str) -> str:
-    with open(file_path) as f:
-        return f.read()
-
-def delete_whitespace(dirty_string: str) -> str:
-    return re.sub(whitespace_pattern, '', dirty_string)
-
-
 class PasswordFileManagerIterator:
-    """"""
     def __init__(self, file_contents):
         """Parameter should be list of bytes"""
         self.contents = file_contents
@@ -55,3 +48,12 @@ class PasswordFileManagerIterator:
         if self.position < len(self.contents):
             return self.contents[self.position]
         raise StopIteration
+
+
+def read_file(file_path: str) -> str:
+    with open(file_path) as f:
+        return f.read()
+
+
+def delete_whitespace(dirty_string: str) -> str:
+    return re.sub(whitespace_pattern, '', dirty_string)
