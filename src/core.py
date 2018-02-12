@@ -8,6 +8,7 @@ import re
 
 
 whitespace_pattern = re.compile(r'\s')
+password_entry_pattern = re.compile(r'(\d+)\s+(\d+)\s+(.*)', re.DOTALL)
 
 
 class PasswordFileManager:
@@ -51,9 +52,40 @@ class PasswordFileManagerIterator:
 
 
 def read_file(file_path: str) -> str:
-    with open(file_path) as f:
+    with open(file_path, 'r') as f:
         return f.read()
 
 
 def delete_whitespace(dirty_string: str) -> str:
     return re.sub(whitespace_pattern, '', dirty_string)
+
+
+def process_entry(entry: str) -> str:
+    """
+    Operation applied on each string read or written to file.
+    For now it only erases spaces
+    """
+    return entry.strip()
+
+
+def serialize_entry(key, value) -> bytes:
+    """
+    Transform key and value to format:
+    key_lenght value_lenght key_str value_str
+    """
+    key = process_entry(str(key))
+    value = process_entry(str(value))
+    return '{} {} {} {}'.format(len(key), len(value), key, value).encode('utf-8')
+
+
+def parse_entry(entry: bytes) -> (str, str):
+    """
+    Given decrypted entry, return search key and secret value. If
+    format is incorrect, or entry is corrupted, throws various exceptions
+    """
+    text = entry.decode('utf-8')
+    data = re.fullmatch(password_entry_pattern, text ).groups()
+    text = process_entry(data[2])
+    return (process_entry(text[0:int(data[0])]),
+            process_entry(text[int(data[0]) + 1 :
+                               int(data[0]) + 1 + int(data[1])] ))

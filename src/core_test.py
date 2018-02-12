@@ -3,9 +3,6 @@ import core
 import tempfile
 import os
 
-from core import PasswordFileManager
-
-
 class EncoderDecoderTestCase(unittest.TestCase):
     def test_encode(self):
         self.assertEqual(11, 1 - (-10))
@@ -15,7 +12,14 @@ class EncoderDecoderTestCase(unittest.TestCase):
         self.assertEqual('', core.delete_whitespace('\r\t	 '))
 
     def test_serialize_entry(self):
-        self.assertTrue(True)
+        self.assertEqual(b'6 7 my key val val',
+                         core.serialize_entry('my key', 'val val'))
+
+    def test_parse_entry(self):
+        self.assertEqual(('my key', 'some\nvalue'),
+                         core.parse_entry(b'6 10 my key some\nvalue'))
+
+
 
 
 class PasswordFileManagerTestCase(unittest.TestCase):
@@ -29,7 +33,7 @@ class PasswordFileManagerTestCase(unittest.TestCase):
 
     def test_iteration(self):
         expected_result = [b'Hello', b'sir', b'how are you?']
-        result = [data for data in PasswordFileManager(self.file_path)]
+        result = [data for data in core.PasswordFileManager(self.file_path)]
         self.assertEqual(expected_result, result)
 
     def tearDown(self):
