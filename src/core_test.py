@@ -19,7 +19,7 @@ class EncoderDecoderTestCase(unittest.TestCase):
 
 
 class PasswordFileManagerTestCase(unittest.TestCase):
-    def set_up(self):
+    def setUp(self):
         tup = tempfile.mkstemp(prefix='PasswordFileManagerTestCase')
         self.file_path = tup[1]
         os.write(tup[0],
@@ -32,7 +32,7 @@ class PasswordFileManagerTestCase(unittest.TestCase):
         result = [data for data in PasswordFileManager(self.file_path)]
         self.assertEqual(expected_result, result)
 
-    def tear_down(self):
+    def tearDown(self):
         os.remove(self.file_path)
 
 
