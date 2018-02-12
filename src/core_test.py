@@ -7,16 +7,19 @@ from core import PasswordFileManager
 
 
 class EncoderDecoderTestCase(unittest.TestCase):
-    def testEncode(self):
+    def test_encode(self):
         self.assertEqual(11, 1 - (-10))
 
-    def testDeleteWhitespace(self):
+    def test_delete_whitespace(self):
         self.assertEqual('ABCD', core.delete_whitespace('  A B \n CD '))
         self.assertEqual('', core.delete_whitespace('\r\t	 '))
 
+    def test_serialize_entry(self):
+        self.assertTrue(True)
+
 
 class PasswordFileManagerTestCase(unittest.TestCase):
-    def setUp(self):
+    def set_up(self):
         tup = tempfile.mkstemp(prefix='PasswordFileManagerTestCase')
         self.file_path = tup[1]
         os.write(tup[0],
@@ -24,14 +27,12 @@ class PasswordFileManagerTestCase(unittest.TestCase):
                  | | 686f772061726520796f753f ||| ')
         os.close(tup[0])
 
-    def testIteration(self):
-        results = list()
+    def test_iteration(self):
         expected_result = [b'Hello', b'sir', b'how are you?']
-        for data in PasswordFileManager(self.file_path):
-            results.append(data)
-        self.assertEqual(expected_result ,results)
+        result = [data for data in PasswordFileManager(self.file_path)]
+        self.assertEqual(expected_result, result)
 
-    def tearDown(self):
+    def tear_down(self):
         os.remove(self.file_path)
 
 
