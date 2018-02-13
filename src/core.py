@@ -1,31 +1,40 @@
-"""
-Core - file with classes for core tasks in password manager, like
+"""Core - file with classes for core tasks in password manager, like
 working with files, encryption, and searching
 """
 
 import constants
+import difflib
+import heapq
 import re
 
 
 whitespace_pattern = re.compile(r'\s')
 password_entry_pattern = re.compile(r'(\d+)\s+(\d+)\s+(.*)', re.DOTALL)
+key_search_junk_pattern = re.compile(r'\W+')
 
 
 class PasswordFileManager:
-    """
-    Class for reading and writing binary data to file. Takes list of
+    """Class for reading and writing binary data to file.  Takes list of
     entries and writes them in such a way, that they can be easily
     distinguished.
 
-    PasswordFileManager is meant to be iterable. Internal
+    PasswordFileManager is meant to be iterable.  Internal
     implementation will be probably changed in future, for better
     memory eficiency
+
+    version - is counter updated on each change.  Other objects
+    reading from this one should always check this number and if it is
+    changed, act accordingly
     """
+
+    # TODO: Checks for empty file, and file modified since read
+
     def __init__(self, file_path: str, ignore_errors=False):
         self.file_path = file_path
         # Read contents to memory
         self.load_contents()
         self.position = 0
+        self.version = 0
 
     def __iter__(self):
         return PasswordFileManagerIterator(self.contents)
@@ -50,6 +59,65 @@ class PasswordFileManagerIterator:
             return self.contents[self.position]
         raise StopIteration
 
+###########################################################################
+
+class SearchableDataStore(object):
+    """Class for fuzzy searching in stored data"""
+
+    def __init__(self, entries: (str, str), junk_filter=None):
+        """Fill inner state with ENTRIES"""
+        self.matcher = difflib.SequenceMatcher(junk_filter,
+                                               autojunk=False)
+        self.entries = list(entries)
+
+
+    def search(self, text: str, func):
+        """Search in stored data for TEXT.  Returns max constants.MAX_RESULTS
+        results.
+
+        Func is given one entry and must transform it to one string.
+        """
+        self.matcher.set_seq2(text)
+        indices = map(lambda x:(x[0], _get_ratio(self.matcher, func(x[1]))),
+                      enumerate(self.entries)) # get list of (index, ratio_for_index)
+
+        indices = heapq.nlargest(constants.MAX_RESULTS, indices, key=lambda x: x[1])
+        return list(map(lambda x: self.entries[x[0]], indices ))
+
+###########################################################################
+
+class KeyValueStore(object):
+    """Wrapper around SearchableDataStore, which works with keys and
+    values. Additionally provides hitns to search, for ignoring non
+    word characters.
+    """
+
+    # TODO: Check if data changed and therefore should be updated.
+
+    KEY = 0
+    VALUE = 1
+
+    def __init__(self, entries: (str, str)):
+        """Fill inner state by ENTRIES.  Expected format is iterable of
+        key,value tuples
+        """
+        self.data_store = SearchableDataStore(entries,
+                                              junk_filter=is_relevant_for_search)
+
+    def find_key(self, key: str):
+        """Search only on keys"""
+        return self.data_store.search(key, lambda x: x[self.KEY])
+
+    def find_fulltext(self, text: str):
+        """Search on keys and also on values"""
+        return self.data_store.search(text, lambda x: x[self.KEY] + x[self.VALUE])
+
+
+###########################################################################
+
+###########################################
+##############  METHODS  ##################
+###########################################
 
 def read_file(file_path: str) -> str:
     with open(file_path, 'r') as f:
@@ -59,6 +127,10 @@ def read_file(file_path: str) -> str:
 def delete_whitespace(dirty_string: str) -> str:
     return re.sub(whitespace_pattern, '', dirty_string)
 
+def is_relevant_for_search(character: str) -> bool:
+    if re.match(key_search_junk_pattern, character) is None:
+        return False
+    return True
 
 def process_entry(entry: str) -> str:
     """
@@ -66,7 +138,6 @@ def process_entry(entry: str) -> str:
     For now it only erases spaces
     """
     return entry.strip()
-
 
 def serialize_entry(key, value) -> bytes:
     """
@@ -76,7 +147,6 @@ def serialize_entry(key, value) -> bytes:
     key = process_entry(str(key))
     value = process_entry(str(value))
     return '{} {} {} {}'.format(len(key), len(value), key, value).encode('utf-8')
-
 
 def parse_entry(entry: bytes) -> (str, str):
     """
@@ -89,3 +159,10 @@ def parse_entry(entry: bytes) -> (str, str):
     return (process_entry(text[0:int(data[0])]),
             process_entry(text[int(data[0]) + 1 :
                                int(data[0]) + 1 + int(data[1])] ))
+
+def _get_ratio(sequence_matcher, text):
+    """Purpose of this function is to replace body of lambda, because
+    search in Sequence_Matcher cannot be done in one command
+    """
+    sequence_matcher.set_seq1(text)
+    return sequence_matcher.ratio()
