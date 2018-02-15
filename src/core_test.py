@@ -5,9 +5,6 @@ import os
 import constants
 
 class EncoderDecoderTestCase(unittest.TestCase):
-    def test_encode(self):
-        self.assertEqual(11, 1 - (-10))
-
     def test_delete_whitespace(self):
         self.assertEqual('ABCD', core.delete_whitespace('  A B \n CD '))
         self.assertEqual('', core.delete_whitespace('\r\t	 '))
@@ -19,8 +16,6 @@ class EncoderDecoderTestCase(unittest.TestCase):
     def test_parse_entry(self):
         self.assertEqual(('my key', 'some\nvalue'),
                          core.parse_entry(b'6 10 my key some\nvalue'))
-
-
 
 
 class PasswordFileManagerTestCase(unittest.TestCase):
@@ -84,7 +79,6 @@ class KeyValueSearchTestCase(unittest.TestCase):
                     ('my reference', 'Some secret note')]
         store = core.KeyValueStore(self.tuples_list)
         self.assertEqual(expected, store.find_key("my key"))
-
 
 
 if __name__ == '__main__':
