@@ -1,5 +1,6 @@
 SPLITTER='|'
 MAX_RESULTS=10
+PROMPT_SYMBOL='> '
 
 # Main arguments
 COMMAND = 'command'

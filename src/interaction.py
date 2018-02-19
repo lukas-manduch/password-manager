@@ -6,6 +6,13 @@ from enum import Enum
 
 import constants
 
+class HelpInteractionCommand(InteractionCommand):
+    def parse(self, user_input: str, additional_input: dict) -> dict:
+        raise InputNeeded("", "Some help?")
+
+class HelpAmbiguousInteractionCommand(InteractionCommand):
+    def parse(self, user_input: str, additional_input: dict) -> dict:
+        raise InputNeeded("", "Some help?")
 
 class InteractionCommand(object):
     """Base class for command parsers
@@ -13,7 +20,7 @@ class InteractionCommand(object):
     TODO: Neither of theese commands should be class. But I don't know
     what it should be :)
     """
-    COMMAND = 'none'
+    COMMANDS = [] #list of keywords matching this command
     def __init__(self):
         pass
 
@@ -35,7 +42,7 @@ class InteractionCommand(object):
 
 
 class SearchInteractionCommand(InteractionCommand):
-    COMMAND = 'search'
+    COMMANDS = ['search', 'find']
     def parse(self, user_input: str, additional_input: dict) -> dict:
         term = additional_input.get(constants.SEARCH_INTERACTION_PROMPT, "")
 
@@ -43,9 +50,8 @@ class SearchInteractionCommand(InteractionCommand):
             term = user_input.strip()
 
         if len(term) == 0:
-            i =  InputNeeded(constants.SEARCH_INTERACTION_PROMPT,
-                              constants.SEARCH_INTERACTION_INFO)
-            raise i
+            raise  InputNeeded(constants.SEARCH_INTERACTION_PROMPT,
+                            constants.SEARCH_INTERACTION_INFO)
 
         return {constants.COMMAND: constants.COMMAND_SEARCH,
                 constants.COMMAND_SEARCH_VALUE: term}
