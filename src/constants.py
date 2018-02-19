@@ -18,3 +18,5 @@ UNHANDLED_EXCEPTION = "Sorry, unhandled exception occured.\
 
 SEARCH_INTERACTION_PROMPT = "Search"
 SEARCH_INTERACTION_INFO = "Please enter search term"
+
+HELP_AMBIGUOUS = "Sorry command is ambiguous:\n"
