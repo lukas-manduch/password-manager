@@ -1,10 +1,22 @@
 """Module containing functions for user interaction with password
 manager - parsing input displaying messages etc.
 """
-
-from enum import Enum
-
 import constants
+
+# Disable unused argument warning
+# pylint: disable=W0613
+class InputNeeded(Exception):
+    """This class can be thrown by interaction commands.  Class forces repl
+    loop to show prompt with KEY_NAME and shows help as KEY_DESCRIPTION.  Next
+    time command is called, user input is in map passed to parse function as
+    second argument, under key KEY_NAME"""
+
+    def __init__(self, key_name='', key_description=''):
+        super().__init__()
+        self.key_name = key_name
+        self.key_description = key_description
+
+###########################################################################
 
 
 class InteractionCommand(object):
@@ -13,7 +25,8 @@ class InteractionCommand(object):
     TODO: Neither of theese commands should be class. But I don't know
     what it should be :)
     """
-    COMMANDS = [] #list of keywords matching this command
+    COMMANDS = []  # list of keywords matching this command
+
     def __init__(self):
         pass
 
@@ -29,25 +42,19 @@ class InteractionCommand(object):
         """
         return {}
 
-
     def help(self) -> str:
         return "Help message"
 
-    def remove_command_part(self, entry) -> str:
-        return entry[get_best_match(entry, self.COMMANDS)[0]:]
-
 ###########################################################################
 
-
-class HelpInteractionCommand(InteractionCommand):
-    COMMANDS = ['help']
-    def parse(self, user_input: str, additional_input: dict) -> dict:
-        raise InputNeeded(key_description="Some help?")
-
-###########################################################################
 
 class HelpAmbiguousInteractionCommand(InteractionCommand):
+    """This class is used when more than one class has commands which match
+    by exactly same length.  Purpose of this class is to inform user about
+    this and show commands which he might want
+    """
     def __init__(self, command_list):
+        super().__init__()
         self.commands = command_list
 
     def parse(self, user_input: str, additional_input: dict) -> dict:
@@ -56,44 +63,22 @@ class HelpAmbiguousInteractionCommand(InteractionCommand):
 
 ###########################################################################
 
-class InputNeeded(Exception):
-    def __init__(self, key_name='', key_description='', reset=False):
-        self.key_name = key_name
-        self.key_description = key_description
 
-###########################################################################
+class HelpInteractionCommand(InteractionCommand):
+    """Purpose of this class is just react when somebody
+    types help and show help to them
+    """
+    COMMANDS = ['help', '?']
 
-
-class SearchInteractionCommand(InteractionCommand):
-    COMMANDS = ['search', 'find']
     def parse(self, user_input: str, additional_input: dict) -> dict:
-        user_input = self.remove_command_part(user_input)
-        term = additional_input.get(constants.SEARCH_INTERACTION_PROMPT, "")
+        raise InputNeeded(key_description="Some help?")
 
-        if term == "":
-            term = user_input.strip()
-
-        if len(term) == 0:
-            raise InputNeeded(constants.SEARCH_INTERACTION_PROMPT,
-                            constants.SEARCH_INTERACTION_INFO)
-
-        return {constants.COMMAND: constants.COMMAND_SEARCH,
-                constants.COMMAND_SEARCH_VALUE: term}
-
+###########################################################################
+# Rest of theese commands is implemented in interaction_commands.py,
+# theese are only ones necessary for correct function of repl
 ###########################################################################
 
 
-class DeleteInteractionCommand(InteractionCommand):
-    COMMANDS = ['delete', 'remove']
-
-###########################################################################
-
-
-class ViewInteractionCommand(InteractionCommand):
-    COMMANDS = ['view', 'show']
-
-
-###########################################################################
 class InteractiveSession:
     """This class is responsible for interaction with user and parsing
     current command.  After identifying correct parser, parsing of
@@ -110,50 +95,45 @@ class InteractiveSession:
         self.show_prompt = True
         self.show_help = True
 
-
     def repl(self) -> dict:
-        """Get command from user input and return it as dict"""
-        additional_input = {}
-        user_input = ''
+        """GET command from user input and return it as dict"""
+        user_input, additional_input = '', {}
+        self.keyword = ""
         while(True):
             inp = self.get_input()
-
-            if len(self.keyword) == 0:
-                user_input = inp
-                additional_input = {}
+            # If keyword is set this is InputNeeded exception
+            if not self.keyword:
+                user_input, additional_input = inp, {}
             else:
                 additional_input[self.keyword] = inp
 
             command = self.find_command(user_input)
             try:
-                return command.parse(user_input,
+                return command.parse(self.remove_command_part(user_input, command),
                                      additional_input)
+
             except InputNeeded as inpn:
+                self.keyword = inpn.key_name
                 if self.show_help:
                     print(inpn.key_description)
-                self.keyword = inpn.key_name
-
 
     def find_command(self, entry: str) -> InteractionCommand:
         """Returns one command which is identified by entry. If some error
         happens fucntion should create its own help command which will only
         show help or error message.
         """
-        res = map(lambda x: get_best_match(entry, x.COMMANDS), self.command_list)
+        res = map(lambda x: get_best_match(entry, x.COMMANDS),
+                  self.command_list)
         res = sorted(res, reverse=True, key=lambda x: x[0])
-        if len(res) == 0 or res[0][0] == 0: # Command didn't match anythings
+        if len(res) == 0 or res[0][0] == 0:  # Command didn't match anythings
             return HelpInteractionCommand()
         # Check if we have only one match ot this size
         res = list(filter(lambda x: x[0] == res[0][0], res))
         if len(res) > 1:
-            return HelpAmbiguousInteractionCommand(list(map(lambda x: x[1], res)))
+            return HelpAmbiguousInteractionCommand(list(map(lambda x: x[1],
+                                                            res)))
         # Only one entry matches
         return self._find_command_by_keyword(res[0][1], self.command_list)()
-
-    @staticmethod
-    def _find_command_by_keyword(keyword, command_list) -> list:
-        ret = filter(lambda x: True if keyword in x.COMMANDS else False , command_list)
-        return next(ret)
 
     def get_input(self):
         """Function for getting user input"""
@@ -162,17 +142,23 @@ class InteractiveSession:
             prompt = self.keyword + constants.PROMPT_SYMBOL
         return input(prompt).strip()
 
-###########################################################################
+    @staticmethod
+    def _find_command_by_keyword(keyword: str,
+                                 command_list: list
+                                 ) -> InteractionCommand:
+        ret = filter(lambda x: True if keyword in x.COMMANDS else False,
+                     command_list)
+        return next(ret)
 
-COMMANDS_LIST = [SearchInteractionCommand,
-                 HelpInteractionCommand,
-                 DeleteInteractionCommand,
-                 ViewInteractionCommand]
+    @staticmethod
+    def remove_command_part(entry, command) -> str:
+        return entry[get_best_match(entry, command.COMMANDS)[0]:]
+
+###########################################################################
 
 ###########################################
 ##############  METHODS  ##################
 ###########################################
-
 
 
 def get_longest_match(search_for: str, search_in: str):
