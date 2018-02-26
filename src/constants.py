@@ -1,6 +1,7 @@
-SPLITTER='|'
-MAX_RESULTS=10
-PROMPT_SYMBOL='> '
+"""Module contains strings and definitions for password manager"""
+SPLITTER = '|'
+MAX_RESULTS = 10
+PROMPT_SYMBOL = '> '
 
 # Main arguments
 COMMAND = 'command'

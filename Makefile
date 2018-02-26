@@ -1,7 +1,8 @@
 py_env = echo activate virtual env here
 py_exe = python
+files = $(wildcard src/*.py)
 
-all: test run
+all: test lint
 
 run:
 	@$(py_env) && $(py_exe) ./src/main.py
@@ -9,6 +10,14 @@ run:
 test:
 	@$(py_env) && $(py_exe) -m unittest  discover -s src -p "*_test.py" -v
 
-travis: all
+install:
+	$(py_exe) -m pip install --user pylint
 
-.PHONY: test run travis all
+lint: $(files)
+
+$(files):
+	pylint $@
+
+travis: install all
+
+.PHONY: test run travis all $(files)

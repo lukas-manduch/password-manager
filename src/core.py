@@ -2,15 +2,20 @@
 working with files, encryption, and searching
 """
 
-import constants
 import difflib
 import heapq
 import re
 
+import constants
 
-whitespace_pattern = re.compile(r'\s')
-password_entry_pattern = re.compile(r'(\d+)\s+(\d+)\s+(.*)', re.DOTALL)
-key_search_junk_pattern = re.compile(r'\W+')
+# Disable TODO errors
+#pylint: disable=W0511
+# Disable Too few public methods warning
+#pylint: disable=R0903
+
+WHITESPACE_PATTERN = re.compile(r'\s')
+PASSWORD_ENTRY_PATTERN = re.compile(r'(\d+)\s+(\d+)\s+(.*)', re.DOTALL)
+KEY_SEARCH_JUNK_PATTERN = re.compile(r'\W+')
 
 
 class PasswordFileManager:
@@ -28,8 +33,9 @@ class PasswordFileManager:
     """
 
     # TODO: Checks for empty file, and file modified since read
+    # TODO: Options for ignoring errors
 
-    def __init__(self, file_path: str, ignore_errors=False):
+    def __init__(self, file_path: str):
         self.file_path = file_path
         # Read contents to memory
         self.load_contents()
@@ -37,27 +43,29 @@ class PasswordFileManager:
         self.version = 0
 
     def __iter__(self):
-        return PasswordFileManagerIterator(self.contents)
+        return self.PasswordFileManagerIterator(self.contents)
 
     def load_contents(self) -> dict:
         """Load contents of file to memory"""
         contents = read_file(self.file_path).split(constants.SPLITTER)
-        contents = filter(lambda x: True if len(x) else False ,
+        contents = filter(lambda x: True if x else False,
                           map(delete_whitespace, contents))
         self.contents = list(map(bytes.fromhex, contents))
 
 
-class PasswordFileManagerIterator:
-    def __init__(self, file_contents):
-        """Parameter should be list of bytes"""
-        self.contents = file_contents
-        self.position = -1
 
-    def __next__(self):
-        self.position += 1
-        if self.position < len(self.contents):
-            return self.contents[self.position]
-        raise StopIteration
+    class PasswordFileManagerIterator:
+        """Iterator for class PasswordFileManager"""
+        def __init__(self, file_contents):
+            """Parameter should be list of bytes"""
+            self.contents = file_contents
+            self.position = -1
+
+        def __next__(self):
+            self.position += 1
+            if self.position < len(self.contents):
+                return self.contents[self.position]
+            raise StopIteration
 
 ###########################################################################
 
@@ -78,11 +86,11 @@ class SearchableDataStore(object):
         Func is given one entry and must transform it to one string.
         """
         self.matcher.set_seq2(text)
-        indices = map(lambda x:(x[0], _get_ratio(self.matcher, func(x[1]))),
+        indices = map(lambda x: (x[0], _get_ratio(self.matcher, func(x[1]))),
                       enumerate(self.entries)) # get list of (index, ratio_for_index)
 
         indices = heapq.nlargest(constants.MAX_RESULTS, indices, key=lambda x: x[1])
-        return list(map(lambda x: self.entries[x[0]], indices ))
+        return list(map(lambda x: self.entries[x[0]], indices))
 
 ###########################################################################
 
@@ -120,15 +128,18 @@ class KeyValueStore(object):
 ###########################################
 
 def read_file(file_path: str) -> str:
-    with open(file_path, 'r') as f:
-        return f.read()
+    """Simple function for reading file"""
+    with open(file_path, 'r') as opened_file:
+        return opened_file.read()
 
 
 def delete_whitespace(dirty_string: str) -> str:
-    return re.sub(whitespace_pattern, '', dirty_string)
+    """Delete all spaces and newlines from DIRTY_STRING"""
+    return re.sub(WHITESPACE_PATTERN, '', dirty_string)
 
 def is_relevant_for_search(character: str) -> bool:
-    if re.match(key_search_junk_pattern, character) is None:
+    """Function for hinting SequenceMatcher about junk letters"""
+    if re.match(KEY_SEARCH_JUNK_PATTERN, character) is None:
         return False
     return True
 
@@ -154,11 +165,11 @@ def parse_entry(entry: bytes) -> (str, str):
     format is incorrect, or entry is corrupted, throws various exceptions
     """
     text = entry.decode('utf-8')
-    data = re.fullmatch(password_entry_pattern, text ).groups()
+    data = re.fullmatch(PASSWORD_ENTRY_PATTERN, text).groups()
     text = process_entry(data[2])
     return (process_entry(text[0:int(data[0])]),
             process_entry(text[int(data[0]) + 1 :
-                               int(data[0]) + 1 + int(data[1])] ))
+                               int(data[0]) + 1 + int(data[1])]))
 
 def _get_ratio(sequence_matcher, text):
     """Purpose of this function is to replace body of lambda, because

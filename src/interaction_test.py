@@ -1,3 +1,4 @@
+"""Tests for interaction commands and repl"""
 import unittest
 import unittest.mock
 
@@ -66,7 +67,6 @@ class InteractiveSessionTestCase(unittest.TestCase):
     def test_repl(self):
         session = interaction.InteractiveSession(self.command_list)
         session.get_input = unittest.mock.Mock()
-        pass
 
 
 if __name__ == '__main__':

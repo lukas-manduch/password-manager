@@ -1,9 +1,13 @@
-import unittest
-import core
-import tempfile
+"""Tests for core functionality of password manager"""
 import os
-import constants
+import tempfile
+import unittest
 
+import constants
+import core
+
+
+# pylint: disable=C0111
 class EncoderDecoderTestCase(unittest.TestCase):
     def test_delete_whitespace(self):
         self.assertEqual('ABCD', core.delete_whitespace('  A B \n CD '))

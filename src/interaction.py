@@ -30,7 +30,8 @@ class InteractionCommand(object):
     def __init__(self):
         pass
 
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    @staticmethod
+    def parse(user_input: str, additional_input: dict) -> dict:
         """Method for parsing user input.  USER_INPUT contains input eneterd
         by user (but command type is cut off), and ADDITIONAL_INPUT
         contains input collected by InputNeeded exceptions.
@@ -42,7 +43,9 @@ class InteractionCommand(object):
         """
         return {}
 
-    def help(self) -> str:
+    @staticmethod
+    def help() -> str:
+        """Return help message"""
         return "Help message"
 
 ###########################################################################
@@ -99,7 +102,7 @@ class InteractiveSession:
         """GET command from user input and return it as dict"""
         user_input, additional_input = '', {}
         self.keyword = ""
-        while(True):
+        while True:
             inp = self.get_input()
             # If keyword is set this is InputNeeded exception
             if not self.keyword:
@@ -125,7 +128,7 @@ class InteractiveSession:
         res = map(lambda x: get_best_match(entry, x.COMMANDS),
                   self.command_list)
         res = sorted(res, reverse=True, key=lambda x: x[0])
-        if len(res) == 0 or res[0][0] == 0:  # Command didn't match anythings
+        if not res or not res[0][0]:  # Command didn't match anythings
             return HelpInteractionCommand()
         # Check if we have only one match ot this size
         res = list(filter(lambda x: x[0] == res[0][0], res))
@@ -144,14 +147,16 @@ class InteractiveSession:
 
     @staticmethod
     def _find_command_by_keyword(keyword: str,
-                                 command_list: list
-                                 ) -> InteractionCommand:
+                                 command_list: list) -> InteractionCommand:
         ret = filter(lambda x: True if keyword in x.COMMANDS else False,
                      command_list)
         return next(ret)
 
     @staticmethod
     def remove_command_part(entry, command) -> str:
+        """Find in command all his representations(COMMANDS), and remove from
+        beginning of ENTRY part which represents one of these commands
+        """
         return entry[get_best_match(entry, command.COMMANDS)[0]:]
 
 ###########################################################################
@@ -181,5 +186,5 @@ def get_best_match(search_for: str, search_in: list()) -> (int, str):
     res = map(lambda x: (get_longest_match(x, search_for), x), search_in)
     try:
         return max(res, key=lambda x: x[0])
-    except ValueError as ve:
+    except ValueError as _ve:
         return (0, '')
