@@ -10,14 +10,14 @@ run:
 test:
 	@$(py_env) && $(py_exe) -m unittest  discover -s src -p "*_test.py" -v
 
-install:
-	$(py_exe) -m pip install --user pylint
+travis_install:
+	$(py_exe) -m pip install pylint
 
 lint: $(files)
 
 $(files):
 	pylint $@
 
-travis: install all
+travis: travis_install all
 
-.PHONY: test run travis all $(files)
+.PHONY: test run travis travis_install all $(files)
