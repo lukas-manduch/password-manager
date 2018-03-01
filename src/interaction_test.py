@@ -70,7 +70,7 @@ class InteractiveSessionTestCase(unittest.TestCase):
         input_mock = unittest.mock.Mock(return_value="search aa bb cc")
         session.get_input = input_mock
         self.assertEqual(expected, session.repl())
-        input_mock.assert_called_once()
+        input_mock.assert_called_once_with()
 
 
 
