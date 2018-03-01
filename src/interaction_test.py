@@ -65,8 +65,13 @@ class InteractiveSessionTestCase(unittest.TestCase):
             command.parse('hel123', {})
 
     def test_repl(self):
+        expected = {'command': 'search', 'term': 'aa bb cc'}
         session = interaction.InteractiveSession(self.command_list)
-        session.get_input = unittest.mock.Mock()
+        input_mock = unittest.mock.Mock(return_value="search aa bb cc")
+        session.get_input = input_mock
+        self.assertEqual(expected, session.repl())
+        input_mock.assert_called_once()
+
 
 
 if __name__ == '__main__':
