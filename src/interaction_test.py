@@ -3,6 +3,7 @@ import unittest
 import unittest.mock
 
 from interaction_commands import SearchInteractionCommand
+from interaction_commands import AddInteractionCommand
 import interaction
 import constants
 
@@ -48,6 +49,58 @@ class SearchCommandsTestCase(unittest.TestCase):
         self.assertEqual("abcd", ret[constants.COMMAND_SEARCH_VALUE])
 
 
+class AddCommandsTestCase(unittest.TestCase):
+    def test_value_to_list(self):
+        inp = {constants.COMMAND_ADD_KEY : "abc",
+               "1" : "line 1",
+               "3" : "line 3",
+               "2" : "line 2"}
+        expected = ["line 1", "line 2", "line 3"]
+        result = AddInteractionCommand.value_to_list(inp)
+        self.assertEqual(expected, result)
+
+    def test_parse_input_line(self):
+        inp = "a-a.a/a s d f"
+        result = AddInteractionCommand.parse_input_line(inp)
+        self.assertEqual(('a-a.a/a', 's d f'), result)
+
+
+    def test_expected_format(self):
+        inp = {constants.COMMAND_ADD_KEY : "abc",
+               "1" : "line 1",
+               "5" : "",
+               "3" : "line 3",
+               "2" : "line 2",
+               "4" : ""}
+        out = AddInteractionCommand().parse("", inp)
+        expected = {constants.COMMAND : constants.COMMAND_ADD,
+                    constants.COMMAND_ADD_KEY : "abc",
+                    constants.COMMAND_ADD_VALUE : "line 1\nline 2\nline 3\n\n"}
+        self.assertEqual(expected, out)
+
+    def test_load_oneline(self):
+        line = " my_long-key.key some value  "
+        out = AddInteractionCommand().parse(line, {})
+        expected = {constants.COMMAND : constants.COMMAND_ADD,
+                    constants.COMMAND_ADD_KEY : "my_long-key.key",
+                    constants.COMMAND_ADD_VALUE : "some value"}
+        self.assertEqual(expected, out)
+
+    def test_get_value_or_raise(self):
+        inp = []
+        with self.assertRaises(interaction.InputNeeded) as _exc:
+            out = AddInteractionCommand.get_value_or_raise(inp)
+        inp.append("abc")
+        with self.assertRaises(interaction.InputNeeded) as _exc:
+            out = AddInteractionCommand.get_value_or_raise(inp)
+        inp.append("")
+        with self.assertRaises(interaction.InputNeeded) as _exc:
+            out = AddInteractionCommand.get_value_or_raise(inp)
+        inp.append("")
+        out = AddInteractionCommand.get_value_or_raise(inp)
+        self.assertEqual("abc\n\n", out)
+
+
 class InteractiveSessionTestCase(unittest.TestCase):
     def setUp(self):
         self.command_list = [SearchInteractionCommand,
@@ -71,8 +124,6 @@ class InteractiveSessionTestCase(unittest.TestCase):
         session.get_input = input_mock
         self.assertEqual(expected, session.repl())
         input_mock.assert_called_once_with()
-
-
 
 if __name__ == '__main__':
     unittest.main()

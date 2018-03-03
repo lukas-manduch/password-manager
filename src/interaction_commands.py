@@ -28,6 +28,61 @@ class SearchInteractionCommand(interaction.InteractionCommand):
 ###########################################################################
 
 
+class AddInteractionCommand(interaction.InteractionCommand):
+    """Class for handling addition of entries.  User must enter keyword an
+    then some text.  Keyword will be on one line and text must be finished
+    by two empty lines
+    """
+    COMMANDS = ["add"]
+    def parse(self, user_input: str, additional_input: dict) -> dict:
+        term, value = "", ""
+        # Get key
+        term = additional_input.get(constants.COMMAND_ADD_KEY, "")
+        if not term:
+            term, value = self.parse_input_line(user_input.strip())
+            if not term:
+                raise interaction.InputNeeded(constants.COMMAND_ADD_KEY,
+                                              constants.ADD_INTERACTION_KEY_MISSING)
+        # Get value
+        if not value:
+            current_value = self.value_to_list(additional_input)
+            # Check if value ends with two empty lines
+            value = self.get_value_or_raise(current_value)
+
+        return {constants.COMMAND: constants.COMMAND_ADD,
+                constants.COMMAND_ADD_KEY: term,
+                constants.COMMAND_ADD_VALUE: value}
+
+
+    @staticmethod
+    def value_to_list(additional_input: dict) -> list:
+        """Transform all entries with keys as '1' '2' and so on, to list"""
+        i = 1
+        result = list()
+        while True:
+            if str(i) not in additional_input:
+                return result
+            result.append(additional_input[str(i)])
+            i += 1
+
+    @staticmethod
+    def get_value_or_raise(value_list: list) -> str:
+        """If last two lines are not empty, raise input needed"""
+        if len(value_list) < 2 or "".join(value_list[-2:]):
+            raise interaction.InputNeeded(key_name=str(len(value_list) + 1))
+        return "\n".join(value_list)
+
+    @staticmethod
+    def parse_input_line(line: str) -> (str, str):
+        """Split string at first whitespace to two"""
+        parts = line.split(maxsplit=1)
+        parts.extend(["", ""])
+        return (parts[0], parts[1])
+
+
+###########################################################################
+
+
 class DeleteInteractionCommand(interaction.InteractionCommand):
     """Delete command"""
     COMMANDS = ['delete', 'remove']
