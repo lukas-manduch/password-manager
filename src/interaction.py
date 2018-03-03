@@ -117,7 +117,7 @@ class InteractiveSession:
 
             except InputNeeded as inpn:
                 self.keyword = inpn.key_name
-                if self.show_help:
+                if self.show_help and inpn.key_description:
                     print(inpn.key_description)
 
     def find_command(self, entry: str) -> InteractionCommand:
