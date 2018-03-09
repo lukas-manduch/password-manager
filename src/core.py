@@ -132,6 +132,11 @@ def read_file(file_path: str) -> str:
     with open(file_path, 'r') as opened_file:
         return opened_file.read()
 
+def write_file(file_path: str, contents:str):
+    """Write file contents to file"""
+    # TODO: write even if disabled by user permissions
+    with open(file_path, 'w') as opened_file:
+        opened_file.write(contents)
 
 def delete_whitespace(dirty_string: str) -> str:
     """Delete all spaces and newlines from DIRTY_STRING"""

@@ -36,6 +36,12 @@ class PasswordFileManagerTestCase(unittest.TestCase):
         result = [data for data in core.PasswordFileManager(self.file_path)]
         self.assertEqual(expected_result, result)
 
+    def test_read_write(self):
+        write = "Abcde fff"
+        core.write_file(self.file_path, write)
+        read = core.read_file(self.file_path)
+        self.assertEqual(write, read)
+
     def tearDown(self):
         os.remove(self.file_path)
 
