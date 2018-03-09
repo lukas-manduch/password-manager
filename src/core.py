@@ -34,23 +34,36 @@ class PasswordFileManager:
 
     # TODO: Checks for empty file, and file modified since read
     # TODO: Options for ignoring errors
+    # TODO: Must be able to detect deleted separators
+
 
     def __init__(self, file_path: str):
         self.file_path = file_path
         # Read contents to memory
-        self.load_contents()
+        contents = self.read_contents()
+        self.contents = parse_contents(contents)
         self.position = 0
         self.version = 0
 
     def __iter__(self):
         return self.PasswordFileManagerIterator(self.contents)
 
-    def load_contents(self) -> dict:
+    def read_contents(self):
         """Load contents of file to memory"""
         contents = read_file(self.file_path).split(constants.SPLITTER)
-        contents = filter(lambda x: True if x else False,
-                          map(delete_whitespace, contents))
-        self.contents = list(map(bytes.fromhex, contents))
+        # Remove empty entries
+        return filter(lambda x: True if x else False,
+                      map(delete_whitespace, contents))
+
+    def append_entry(self, first, second):
+        """Append entry to list. For now, also write to file"""
+        self.contents.append((first, second))
+        self.save_contents()
+
+    def save_contents(self):
+        """Write current contents of this object to file"""
+        write_file(self.file_path,
+                   serialize_contents(self.contents))
 
 
 
@@ -132,7 +145,7 @@ def read_file(file_path: str) -> str:
     with open(file_path, 'r') as opened_file:
         return opened_file.read()
 
-def write_file(file_path: str, contents:str):
+def write_file(file_path: str, contents: str):
     """Write file contents to file"""
     # TODO: write even if disabled by user permissions
     with open(file_path, 'w') as opened_file:
@@ -175,6 +188,31 @@ def parse_entry(entry: bytes) -> (str, str):
     return (process_entry(text[0:int(data[0])]),
             process_entry(text[int(data[0]) + 1 :
                                int(data[0]) + 1 + int(data[1])]))
+
+def parse_contents(contents) -> list:
+    """Given iterable object, containing entries from password file for
+    each entry parse its contents (also decrypt) and return as list of
+    tuples (key, value)
+
+    Argument:
+     Iterable object
+
+    Return:
+     List of tuples (key, value)
+
+    """
+    tmp = map(bytes.fromhex, contents)
+    return list(map(parse_entry, tmp))
+
+def serialize_contents(contents) -> str:
+    """Given iterable of tuples (str, str), transform them to password
+    manager format, eventually encrypt, than transform to hex and join
+    to string
+    """
+    serialized = map(lambda x: serialize_entry(x[0], x[1]), contents)
+    hserialized = map(lambda x: x.hex(), serialized)
+    return constants.SPLITTER_NEWLINE.join(hserialized)
+
 
 def _get_ratio(sequence_matcher, text):
     """Purpose of this function is to replace body of lambda, because

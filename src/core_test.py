@@ -21,18 +21,31 @@ class EncoderDecoderTestCase(unittest.TestCase):
         self.assertEqual(('my key', 'some\nvalue'),
                          core.parse_entry(b'6 10 my key some\nvalue'))
 
+    def test_parse_contents(self):
+        expect = [('l', 'aa'), ('Hello', 'yeti')]
+        values = [b'1 2 l aa'.hex(), b'5 4 Hello yeti'.hex()]
+        hvalues = values
+        self.assertEqual(expect, core.parse_contents(hvalues))
+
+    def test_serialize_contents(self):
+        expect = "312032206c206161|\n3520342048656c6c6f2079657469"
+        inp = [('l', 'aa'), ('Hello', 'yeti')]
+        self.assertEqual(expect, core.serialize_contents(inp))
+
+
 
 class PasswordFileManagerTestCase(unittest.TestCase):
     def setUp(self):
         tup = tempfile.mkstemp(prefix='PasswordFileManagerTestCase')
         self.file_path = tup[1]
         os.write(tup[0],
-                 b'4865 6 C 6c 6 F | 7369 72 | \
-                 | | 686f772061726520796f753f ||| ')
+                 b'362038206d7920 6b6 579206d790a76616c7565 |\
+                 313420313620736f6d655f6f746865725f6b65792073\
+                 6f6d652077656972640a76616c7565')
         os.close(tup[0])
 
     def test_iteration(self):
-        expected_result = [b'Hello', b'sir', b'how are you?']
+        expected_result = [('my key', 'my\nvalue'), ('some_other_key', 'some weird\nvalue')]
         result = [data for data in core.PasswordFileManager(self.file_path)]
         self.assertEqual(expected_result, result)
 
