@@ -82,31 +82,6 @@ class PasswordFileManager:
 
 ###########################################################################
 
-class SearchableDataStore(object):
-    """Class for fuzzy searching in stored data"""
-
-    def __init__(self, entries: (str, str), junk_filter=None):
-        """Fill inner state with ENTRIES"""
-        self.matcher = difflib.SequenceMatcher(junk_filter,
-                                               autojunk=False)
-        self.entries = list(entries)
-
-
-    def search(self, text: str, func):
-        """Search in stored data for TEXT.  Returns max constants.MAX_RESULTS
-        results.
-
-        Func is given one entry and must transform it to one string.
-        """
-        self.matcher.set_seq2(text)
-        indices = map(lambda x: (x[0], _get_ratio(self.matcher, func(x[1]))),
-                      enumerate(self.entries)) # get list of (index, ratio_for_index)
-
-        indices = heapq.nlargest(constants.MAX_RESULTS, indices, key=lambda x: x[1])
-        return list(map(lambda x: self.entries[x[0]], indices))
-
-###########################################################################
-
 class KeyValueStore(object):
     """Wrapper around SearchableDataStore, which works with keys and
     values. Additionally provides hitns to search, for ignoring non
@@ -122,16 +97,17 @@ class KeyValueStore(object):
         """Fill inner state by ENTRIES.  Expected format is iterable of
         key,value tuples
         """
-        self.data_store = SearchableDataStore(entries,
-                                              junk_filter=is_relevant_for_search)
+        self.entries = entries
 
-    def find_key(self, key: str):
+    def find_key(self, key: str, max_results=10):
         """Search only on keys"""
-        return self.data_store.search(key, lambda x: x[self.KEY])
+        return search(self.entries, key, lambda x: x[self.KEY],
+                      junk_filter=is_relevant_for_search, max_results=max_results)
 
-    def find_fulltext(self, text: str):
+    def find_fulltext(self, text: str, max_results=10):
         """Search on keys and also on values"""
-        return self.data_store.search(text, lambda x: x[self.KEY] + x[self.VALUE])
+        return search(self.entries, text, lambda x: x[self.KEY] + x[self.VALUE],
+                      junk_filter=is_relevant_for_search, max_results=max_results)
 
 
 ###########################################################################
@@ -220,3 +196,18 @@ def _get_ratio(sequence_matcher, text):
     """
     sequence_matcher.set_seq1(text)
     return sequence_matcher.ratio()
+
+def search(entries, text: str, func, junk_filter=None, max_results=10):
+    """Search in ENTRIES for TEXT. Return list of indices of entries with
+    best match. Match max MAX_RESULTS entries. FUNC is given one entry
+    and must transform it to one string.
+    """
+    matcher = difflib.SequenceMatcher(junk_filter,
+                                      autojunk=False)
+    matcher.set_seq2(text)
+    # Create list of (index, rating)
+    indices = map(lambda x: (x[0], _get_ratio(matcher, func(x[1]))),
+                  enumerate(entries))
+    # Get only top MAX_RESULTS
+    indices = heapq.nlargest(max_results, indices, key=lambda x: x[1])
+    return list(map(lambda x: entries[x[0]], indices))

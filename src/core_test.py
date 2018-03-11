@@ -1,5 +1,6 @@
 """Tests for core functionality of password manager"""
 import os
+from functools import partial
 import tempfile
 import unittest
 
@@ -76,32 +77,32 @@ class KeyValueSearchTestCase(unittest.TestCase):
     def test_searchable_store(self):
         expected = [('key1', 'my value'),
                     ('my reference', 'Some secret note')]
-        store = core.SearchableDataStore(self.tuples_list)
-        self.assertEqual(expected, store.search("my key", lambda x: x[0]))
+        func = partial(core.search, self.tuples_list, max_results=2)
+        self.assertEqual(expected, func("my key", lambda x: x[0]))
 
     def test_searchable_store2(self):
         expected = [("example.com", "Super stored text \nitem ssis securely"),
                     ("Some list", "- last stored item ...  securely entry")]
-        store = core.SearchableDataStore(self.tuples_list)
-        self.assertEqual(expected, store.search("item securely", lambda x: x[1]))
+        func = partial(core.search, self.tuples_list, max_results=2)
+        self.assertEqual(expected, func("item securely", lambda x: x[1]))
 
     def test_find_fulltext(self):
         expected = [("Some list", "- last stored item ...  securely entry"),
                     ("example.com", "Super stored text \nitem ssis securely")]
         store = core.KeyValueStore(self.tuples_list)
-        self.assertEqual(expected, store.find_fulltext("item securely"))
+        self.assertEqual(expected, store.find_fulltext("item securely", max_results=2))
 
     def test_find_fulltext2(self):
         expected = [('key1', 'my value'),
                     ('my reference', 'Some secret note')]
         store = core.KeyValueStore(self.tuples_list)
-        self.assertEqual(expected, store.find_fulltext("my key"))
+        self.assertEqual(expected, store.find_fulltext("my key", max_results=2))
 
     def test_find_key(self):
         expected = [('key1', 'my value'),
                     ('my reference', 'Some secret note')]
         store = core.KeyValueStore(self.tuples_list)
-        self.assertEqual(expected, store.find_key("my key"))
+        self.assertEqual(expected, store.find_key("my key", max_results=2))
 
 
 if __name__ == '__main__':
