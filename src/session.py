@@ -21,6 +21,7 @@ class SessionController(object):
         self.file_path = settings[constants.SETTINGS_FILE_PATH]
         self.pass_file = None
         self.store = None
+        self.indices = list() # Found indices
 
     def update_status(self) -> dict:
         """Reinitialize self, try to read file create index and so on. Set
@@ -64,7 +65,13 @@ class SessionController(object):
 
     def search(self, search_pattern: str) -> dict:
         """Method representing command search"""
-        pass
+        self.indices = self.store.find_key(search_pattern)
+        value_list = map(lambda x: self.pass_file[x], self.indices)
+        value_dict = map(lambda x: {constants.SECRET_KEY: x[0],
+                                    constants.SECRET_VALUE: x[1]},
+                         value_list)
+        return {constants.RESPONSE: constants.RESPONSE_OK,
+                constants.RESPONSE_VALUES: list(value_dict)}
 
     def add(self, key: str, value: str) -> dict:
         """Append key and value to password file"""

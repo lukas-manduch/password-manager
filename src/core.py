@@ -46,7 +46,12 @@ class PasswordFileManager:
         self.version = 0
 
     def __iter__(self):
+        """Create iterator"""
         return self.PasswordFileManagerIterator(self.contents)
+
+    def __getitem__(self, index):
+        """Indexing operator"""
+        return self.contents[index]
 
     def read_contents(self):
         """Load contents of file to memory"""

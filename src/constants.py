@@ -10,19 +10,23 @@ PROMPT_SYMBOL = '> '
 # COMMAND_ADD_KEY: key, COMMAND_ADD_VALUE:value}
 COMMAND = 'command'
 
+SECRET_KEY = 'key'
+SECRET_VALUE = 'value'
 # Search
 COMMAND_SEARCH = 'search'
 COMMAND_SEARCH_VALUE = 'term'
 
 # Add
 COMMAND_ADD = 'add'
-COMMAND_ADD_KEY = 'key'
-COMMAND_ADD_VALUE = 'value'
+COMMAND_ADD_KEY = SECRET_KEY
+COMMAND_ADD_VALUE = SECRET_VALUE
 
 # Response
 RESPONSE = 'status'
 RESPONSE_ERROR = 'error'
 RESPONSE_OK = 'ok'
+
+RESPONSE_VALUES = 'values'
 
 RESPONSE_ERROR_UNKNOWN_COMMAND = "Unknown command"
 RESPONSE_ERROR_ARGUMENTS = "Bad or missing arguments"
