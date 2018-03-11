@@ -75,32 +75,27 @@ class KeyValueSearchTestCase(unittest.TestCase):
         constants.MAX_RESULTS = self.constants_tmp
 
     def test_searchable_store(self):
-        expected = [('key1', 'my value'),
-                    ('my reference', 'Some secret note')]
+        expected = [0, 3]
         func = partial(core.search, self.tuples_list, max_results=2)
         self.assertEqual(expected, func("my key", lambda x: x[0]))
 
     def test_searchable_store2(self):
-        expected = [("example.com", "Super stored text \nitem ssis securely"),
-                    ("Some list", "- last stored item ...  securely entry")]
+        expected = [2, 5]
         func = partial(core.search, self.tuples_list, max_results=2)
         self.assertEqual(expected, func("item securely", lambda x: x[1]))
 
     def test_find_fulltext(self):
-        expected = [("Some list", "- last stored item ...  securely entry"),
-                    ("example.com", "Super stored text \nitem ssis securely")]
+        expected = [5, 2]
         store = core.KeyValueStore(self.tuples_list)
         self.assertEqual(expected, store.find_fulltext("item securely", max_results=2))
 
     def test_find_fulltext2(self):
-        expected = [('key1', 'my value'),
-                    ('my reference', 'Some secret note')]
+        expected = [0, 3]
         store = core.KeyValueStore(self.tuples_list)
         self.assertEqual(expected, store.find_fulltext("my key", max_results=2))
 
     def test_find_key(self):
-        expected = [('key1', 'my value'),
-                    ('my reference', 'Some secret note')]
+        expected = [0, 3]
         store = core.KeyValueStore(self.tuples_list)
         self.assertEqual(expected, store.find_key("my key", max_results=2))
 

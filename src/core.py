@@ -83,8 +83,8 @@ class PasswordFileManager:
 ###########################################################################
 
 class KeyValueStore(object):
-    """Wrapper around SearchableDataStore, which works with keys and
-    values. Additionally provides hitns to search, for ignoring non
+    """Wrapper around search function, which works with keys and
+    values. Additionally provides hints to search, for ignoring non
     word characters.
     """
 
@@ -94,8 +94,8 @@ class KeyValueStore(object):
     VALUE = 1
 
     def __init__(self, entries: (str, str)):
-        """Fill inner state by ENTRIES.  Expected format is iterable of
-        key,value tuples
+        """Take reference to ENTRIES.  Expected format is iterable of
+        key,value tuples.
         """
         self.entries = entries
 
@@ -210,4 +210,4 @@ def search(entries, text: str, func, junk_filter=None, max_results=10):
                   enumerate(entries))
     # Get only top MAX_RESULTS
     indices = heapq.nlargest(max_results, indices, key=lambda x: x[1])
-    return list(map(lambda x: entries[x[0]], indices))
+    return list(map(lambda x: x[0], indices))
