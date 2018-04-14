@@ -9,15 +9,13 @@ from core import PasswordFileManager
 from core import KeyValueStore
 
 
-
-
 class SessionController(object):
     """Class grouping main functionality of password manager.  Input
     should be passed to method process as dictionary.
     """
 
     def __init__(self, settings: dict):
-        self.state = False
+        self.state = False # Valid or invalid state
         self.file_path = settings[constants.SETTINGS_FILE_PATH]
         self.pass_file = None
         self.store = None
