@@ -33,7 +33,6 @@ class SessionController(object):
                 self.pass_file = PasswordFileManager(self.file_path)
 
             self.store = KeyValueStore(self.pass_file)
-            print("Updated status")
             ret = {constants.RESPONSE: constants.RESPONSE_OK}
         except OSError as error:
             self.state = False
@@ -73,6 +72,7 @@ class SessionController(object):
 
     def add(self, key: str, value: str) -> dict:
         """Append key and value to password file"""
+        assert self.state is True
         self.state = False # Force reload of key value store
         try:
             self.pass_file.append_entry(key, value)
