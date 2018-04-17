@@ -71,7 +71,6 @@ class PasswordFileManager:
                    serialize_contents(self.contents))
 
 
-
     class PasswordFileManagerIterator:
         """Iterator for class PasswordFileManager"""
         def __init__(self, file_contents):

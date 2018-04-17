@@ -60,6 +60,11 @@ class SessionController(object):
         # ERROR
         return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
 
+    def save_search_result(self, data: dict):
+        """Save results from search command. They will be used by other
+        commands, like delete"""
+        pass
+
     def search(self, search_pattern: str) -> dict:
         """Method representing command search"""
         self.indices = self.store.find_key(search_pattern)

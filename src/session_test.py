@@ -61,6 +61,13 @@ class SessionControllerTestCase(unittest.TestCase):
         ret = session_controller.add("my key", "my_value")
         self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
 
+    def test_search(self):
+        session_controller = session.SessionController(self.settings)
+        session_controller.update_status()
+        ret = session_controller.search("2")
+        self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_OK)
+        self.assertEqual(len(ret[constants.RESPONSE_VALUES]), 2)
+
 
 if __name__ == '__main__':
     unittest.main()
