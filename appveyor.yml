@@ -5,7 +5,7 @@ environment:
 init:
         - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 install:
-        - "%PYTHON%\\python.exe -m pip install pylint"
+        - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
 
 test_script:
         - powershell /C ".\make.ps1 -interpreter '%PYTHON%\\python.exe' -lint $true"

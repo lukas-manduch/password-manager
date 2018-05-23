@@ -11,7 +11,7 @@ test:
 	@$(py_env) && $(py_exe) -m unittest  discover -s src -p "*_test.py" -v
 
 travis_install:
-	$(py_exe) -m pip install pylint
+	$(py_exe) -m pip install -r requirements.txt
 
 lint: $(files)
 
