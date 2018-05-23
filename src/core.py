@@ -5,6 +5,11 @@ working with files, encryption, and searching
 import difflib
 import heapq
 import re
+import base64
+import hashlib
+
+import cryptography
+
 
 import constants
 
@@ -113,6 +118,33 @@ class KeyValueStore(object):
         return search(self.entries, text, lambda x: x[self.KEY] + x[self.VALUE],
                       junk_filter=is_relevant_for_search, max_results=max_results)
 
+
+###########################################################################
+
+
+class Cipher(object):
+    """Class for encryption decryption. In future cryptography library
+    will probably be removed and replaced with direct calls to openssl"""
+
+    def __init__(self, password: str):
+        from cryptography.fernet import Fernet
+        password = hashlib.sha256(str(password.encode).encode('utf-8'))
+        key = base64.urlsafe_b64encode(password.digest())
+        self.fernet = Fernet(key)
+
+    def encrypt(self, secret: bytes) -> bytes:
+        """Encrypt SECRET bytes with PASSWORD"""
+        try:
+            return self.fernet.encrypt(secret)
+        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey):
+            return b''
+
+    def decrypt(self, cipher_text: bytes) -> bytes:
+        """Decrypt CIPHER_TEXT bytes with PASSWORD"""
+        try:
+            return self.fernet.decrypt(cipher_text)
+        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey):
+            return b''
 
 ###########################################################################
 

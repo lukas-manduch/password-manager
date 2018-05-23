@@ -62,7 +62,7 @@ class SessionController(object):
 
     def save_search_result(self, data: dict):
         """Save results from search command. They will be used by other
-        commands, like delete"""
+        commands, like delete, or show"""
         pass
 
     def search(self, search_pattern: str) -> dict:
