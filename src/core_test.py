@@ -100,5 +100,16 @@ class KeyValueSearchTestCase(unittest.TestCase):
         self.assertEqual(expected, store.find_key("my key", max_results=2))
 
 
+class EncryptionDecryptionTestCase(unittest.TestCase):
+    def test_simple_encryption(self):
+        cipher1 = core.Cipher('pass')
+        cipher2 = core.Cipher('pass')
+        plaintext = b'Hello, how are you? This is pretty \n long literal'
+        encrypted = cipher1.encrypt(plaintext)
+        self.assertNotEqual(plaintext, encrypted)
+        decrypted = cipher2.decrypt(encrypted)
+        self.assertEqual(plaintext, decrypted)
+
+
 if __name__ == '__main__':
     unittest.main()
