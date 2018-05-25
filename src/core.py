@@ -6,10 +6,9 @@ import re
 import base64
 import hashlib
 from difflib import SequenceMatcher
-from typing import Tuple
+from typing import List, Iterable, Tuple
 
 import cryptography
-
 
 import constants
 
@@ -54,7 +53,7 @@ class PasswordFileManager:
         """Create iterator"""
         return self.PasswordFileManagerIterator(self.contents)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Tuple[str, str]:
         """Indexing operator"""
         return self.contents[index]
 
@@ -102,7 +101,7 @@ class KeyValueStore(object):
     KEY = 0
     VALUE = 1
 
-    def __init__(self, entries: Tuple[str, str]) -> None:
+    def __init__(self, entries: Iterable[Tuple[str, str]]) -> None:
         """Take reference to ENTRIES.  Expected format is iterable of
         key,value tuples.
         """
@@ -204,7 +203,7 @@ def parse_entry(entry: bytes) -> Tuple[str, str]:
             process_entry(text[int(data[0]) + 1 :
                                int(data[0]) + 1 + int(data[1])]))
 
-def parse_contents(contents) -> list:
+def parse_contents(contents) -> List[Tuple[str, str]]:
     """Given iterable object, containing entries from password file for
     each entry parse its contents (also decrypt) and return as list of
     tuples (key, value)

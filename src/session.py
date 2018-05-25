@@ -7,6 +7,7 @@ dictionary
 import constants
 from core import PasswordFileManager
 from core import KeyValueStore
+from typing import List, Dict, Optional
 
 
 class SessionController(object):
@@ -14,12 +15,12 @@ class SessionController(object):
     should be passed to method process as dictionary.
     """
 
-    def __init__(self, settings: dict):
+    def __init__(self, settings: dict) -> None:
         self.state = False # Valid or invalid state
         self.file_path = settings[constants.SETTINGS_FILE_PATH]
-        self.pass_file = None
-        self.store = None
-        self.indices = list() # Found indices
+        self.pass_file: Optional[PasswordFileManager] = None
+        self.store: Optional[KeyValueStore] = None
+        self.indices: List[int] = list() # Found indices
 
     def update_status(self) -> dict:
         """Reinitialize self, try to read file create index and so on. Set
@@ -27,7 +28,7 @@ class SessionController(object):
         format used by process method
         """
         self.state = True
-        ret = dict()
+        ret: Dict[str, str] = dict()
         try:
             if self.pass_file is None:
                 self.pass_file = PasswordFileManager(self.file_path)
@@ -36,7 +37,7 @@ class SessionController(object):
             ret = {constants.RESPONSE: constants.RESPONSE_OK}
         except OSError as error:
             self.state = False
-            ret = self.error_to_dict(error)
+            ret = self.error_to_dict(str(error))
         return ret
 
     def process(self, data: dict) -> dict:
@@ -67,8 +68,12 @@ class SessionController(object):
 
     def search(self, search_pattern: str) -> dict:
         """Method representing command search"""
+        assert self.store is not None
+        assert self.pass_file is not None
+
+        password_file_ref = self.pass_file # Hack for mypy
         self.indices = self.store.find_key(search_pattern)
-        value_list = map(lambda x: self.pass_file[x], self.indices)
+        value_list = map(lambda x: password_file_ref[x], self.indices)
         value_dict = map(lambda x: {constants.SECRET_KEY: x[0],
                                     constants.SECRET_VALUE: x[1]},
                          value_list)
@@ -77,12 +82,15 @@ class SessionController(object):
 
     def add(self, key: str, value: str) -> dict:
         """Append key and value to password file"""
+        assert self.store is not None
+        assert self.pass_file is not None
         assert self.state is True
+
         self.state = False # Force reload of key value store
         try:
             self.pass_file.append_entry(key, value)
         except OSError as error:
-            return self.error_to_dict(error)
+            return self.error_to_dict(str(error))
         return {constants.RESPONSE: constants.RESPONSE_OK}
 
     @staticmethod
