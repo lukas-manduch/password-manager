@@ -1,12 +1,12 @@
 """Core - file with classes for core tasks in password manager, like
 working with files, encryption, and searching
 """
-
-import difflib
 import heapq
 import re
 import base64
 import hashlib
+from difflib import SequenceMatcher
+from typing import Tuple
 
 import cryptography
 
@@ -42,7 +42,7 @@ class PasswordFileManager:
     # TODO: Must be able to detect deleted separators
 
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str) -> None:
         self.file_path = file_path
         # Read contents to memory
         contents = self.read_contents()
@@ -102,7 +102,7 @@ class KeyValueStore(object):
     KEY = 0
     VALUE = 1
 
-    def __init__(self, entries: (str, str)):
+    def __init__(self, entries: Tuple[str, str]) -> None:
         """Take reference to ENTRIES.  Expected format is iterable of
         key,value tuples.
         """
@@ -126,10 +126,10 @@ class Cipher(object):
     """Class for encryption decryption. In future cryptography library
     will probably be removed and replaced with direct calls to openssl"""
 
-    def __init__(self, password: str):
+    def __init__(self, password: str) -> None:
         from cryptography.fernet import Fernet
-        password = hashlib.sha256(str(password.encode).encode('utf-8'))
-        key = base64.urlsafe_b64encode(password.digest())
+        hashed = hashlib.sha256(str(password.encode).encode('utf-8'))
+        key = base64.urlsafe_b64encode(hashed.digest())
         self.fernet = Fernet(key)
 
     def encrypt(self, secret: bytes) -> bytes:
@@ -189,13 +189,16 @@ def serialize_entry(key, value) -> bytes:
     value = process_entry(str(value))
     return '{} {} {} {}'.format(len(key), len(value), key, value).encode('utf-8')
 
-def parse_entry(entry: bytes) -> (str, str):
+def parse_entry(entry: bytes) -> Tuple[str, str]:
     """
     Given decrypted entry, return search key and secret value. If
     format is incorrect, or entry is corrupted, throws various exceptions
     """
     text = entry.decode('utf-8')
-    data = re.fullmatch(PASSWORD_ENTRY_PATTERN, text).groups()
+    match = re.fullmatch(PASSWORD_ENTRY_PATTERN, text)
+    if not match:
+        raise ValueError
+    data = match.groups()
     text = process_entry(data[2])
     return (process_entry(text[0:int(data[0])]),
             process_entry(text[int(data[0]) + 1 :
@@ -238,12 +241,12 @@ def search(entries, text: str, func, junk_filter=None, max_results=10):
     best match. Match max MAX_RESULTS entries. FUNC is given one entry
     and must transform it to one string.
     """
-    matcher = difflib.SequenceMatcher(junk_filter,
-                                      autojunk=False)
+    matcher: SequenceMatcher = SequenceMatcher(junk_filter,
+                                               autojunk=False)
     matcher.set_seq2(text)
     # Create list of (index, rating)
     indices = map(lambda x: (x[0], _get_ratio(matcher, func(x[1]))),
                   enumerate(entries))
     # Get only top MAX_RESULTS
-    indices = heapq.nlargest(max_results, indices, key=lambda x: x[1])
-    return list(map(lambda x: x[0], indices))
+    largest = heapq.nlargest(max_results, indices, key=lambda x: x[1])
+    return list(map(lambda x: x[0], largest))

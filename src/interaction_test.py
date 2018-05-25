@@ -134,7 +134,7 @@ class InteractiveSessionTestCase(unittest.TestCase):
         session.get_input = input_mock
         with self.assertRaises(KeyboardInterrupt):
             session.repl()
-        self.assertEqual(2, input_mock.call_count)
+        self.assertEqual(3, input_mock.call_count)
 
 if __name__ == '__main__':
     unittest.main()
