@@ -125,6 +125,8 @@ class InteractiveSessionTestCase(unittest.TestCase):
         self.assertEqual(expected, session.repl())
         input_mock.assert_called_once_with()
 
+    # Dont print to test output
+    @unittest.mock.patch('interaction.print', unittest.mock.Mock())
     def test_keyboard_interrupt(self):
         """On first keyboard interrupt, command must be cancelled and on
         second exception thrown"""

@@ -4,10 +4,11 @@ dictionaries and maybe performs some actions over parts in core module
 dictionary
 """
 
+from typing import List, Dict, Optional
+
 import constants
 from core import PasswordFileManager
 from core import KeyValueStore
-from typing import List, Dict, Optional
 
 
 class SessionController(object):
