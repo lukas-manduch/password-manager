@@ -99,17 +99,25 @@ class InteractiveSession:
         self.show_help = True
 
     def repl(self) -> dict:
-        """GET command from user input and return it as dict"""
-        user_input, additional_input = '', {}
+        """GET command from user input and return it as dict. On
+        KeyboardInterrupt cancel command, on another, rethrow"""
+        user_input, additional_input = '', dict()
         self.keyword = ""
         while True:
-            inp = self.get_input()
+            try:
+                inp = self.get_input()
+            except KeyboardInterrupt: # Jump out from command, or quit
+                if self.keyword: # If command is active, cancel it
+                    user_input, additional_input, self.keyword = "", {}, ""
+                    print()
+                    continue
+                raise
             # If keyword is set this is InputNeeded exception
             if not self.keyword:
                 user_input, additional_input = inp, {}
             else:
                 additional_input[self.keyword] = inp
-
+            # Parse input
             command = self.find_command(user_input)
             try:
                 return command.parse(self.remove_command_part(user_input, command),
@@ -130,7 +138,7 @@ class InteractiveSession:
         res = sorted(res, reverse=True, key=lambda x: x[0])
         if not res or not res[0][0]:  # Command didn't match anythings
             return HelpInteractionCommand()
-        # Check if we have only one match ot this size
+        # Check if we have only one match of this size
         res = list(filter(lambda x: x[0] == res[0][0], res))
         if len(res) > 1:
             return HelpAmbiguousInteractionCommand(list(map(lambda x: x[1],
@@ -178,7 +186,7 @@ def get_longest_match(search_for: str, search_in: str):
             return i
     return length
 
-def get_best_match(search_for: str, search_in: list()) -> (int, str):
+def get_best_match(search_for: str, search_in: list) -> (int, str):
     """Given list of strings and one string to search for, returns length of
     longest match and entry with longest match as tuple. If there
     is match of size 0, function returns None

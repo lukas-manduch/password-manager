@@ -125,5 +125,16 @@ class InteractiveSessionTestCase(unittest.TestCase):
         self.assertEqual(expected, session.repl())
         input_mock.assert_called_once_with()
 
+    def test_keyboard_interrupt(self):
+        """On first keyboard interrupt, command must be cancelled and on
+        second exception thrown"""
+        input_mock = unittest.mock.Mock(return_value="search aa bb cc")
+        input_mock.side_effect = ['search', KeyboardInterrupt, KeyboardInterrupt]
+        session = interaction.InteractiveSession(self.command_list)
+        session.get_input = input_mock
+        with self.assertRaises(KeyboardInterrupt):
+            session.repl()
+        self.assertEqual(2, input_mock.call_count)
+
 if __name__ == '__main__':
     unittest.main()
