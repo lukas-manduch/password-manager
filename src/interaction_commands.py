@@ -1,6 +1,8 @@
 """This module contains definitions of commands, which can be used by repl
 defined in interaction
 """
+from typing import List, Tuple
+
 import constants
 import interaction
 
@@ -58,7 +60,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
     def value_to_list(additional_input: dict) -> list:
         """Transform all entries with keys as '1' '2' and so on, to list"""
         i = 1
-        result = list()
+        result: List[str] = list()
         while True:
             if str(i) not in additional_input:
                 return result
@@ -73,7 +75,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
         return "\n".join(value_list)
 
     @staticmethod
-    def parse_input_line(line: str) -> (str, str):
+    def parse_input_line(line: str) -> Tuple[str, str]:
         """Split string at first whitespace to two"""
         parts = line.split(maxsplit=1)
         parts.extend(["", ""])

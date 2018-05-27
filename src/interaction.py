@@ -1,6 +1,8 @@
 """Module containing functions for user interaction with password
 manager - parsing input displaying messages etc.
 """
+from typing import Dict, List, Tuple
+
 import constants
 
 # Disable unused argument warning
@@ -25,13 +27,12 @@ class InteractionCommand(object):
     TODO: Neither of theese commands should be class. But I don't know
     what it should be :)
     """
-    COMMANDS = []  # list of keywords matching this command
+    COMMANDS: List[str] = []  # list of keywords matching this command
 
     def __init__(self):
         pass
 
-    @staticmethod
-    def parse(user_input: str, additional_input: dict) -> dict:
+    def parse(self, user_input: str, additional_input: dict) -> dict:
         """Method for parsing user input.  USER_INPUT contains input eneterd
         by user (but command type is cut off), and ADDITIONAL_INPUT
         contains input collected by InputNeeded exceptions.
@@ -41,7 +42,7 @@ class InteractionCommand(object):
         Throws InputNeeded if command is incomplete
 
         """
-        return {}
+        pass
 
     @staticmethod
     def help() -> str:
@@ -101,7 +102,8 @@ class InteractiveSession:
     def repl(self) -> dict:
         """GET command from user input and return it as dict. On
         KeyboardInterrupt cancel command, on another, rethrow"""
-        user_input, additional_input = '', dict()
+        user_input: str = ''
+        additional_input: Dict[str, str] = dict()
         self.keyword = ""
         while True:
             try:
@@ -133,9 +135,9 @@ class InteractiveSession:
         happens fucntion should create its own help command which will only
         show help or error message.
         """
-        res = map(lambda x: get_best_match(entry, x.COMMANDS),
-                  self.command_list)
-        res = sorted(res, reverse=True, key=lambda x: x[0])
+        matches = map(lambda x: get_best_match(entry, x.COMMANDS),
+                      self.command_list)
+        res = sorted(matches, reverse=True, key=lambda x: x[0])
         if not res or not res[0][0]:  # Command didn't match anythings
             return HelpInteractionCommand()
         # Check if we have only one match of this size
@@ -144,7 +146,7 @@ class InteractiveSession:
             return HelpAmbiguousInteractionCommand(list(map(lambda x: x[1],
                                                             res)))
         # Only one entry matches
-        return self._find_command_by_keyword(res[0][1], self.command_list)()
+        return self._find_command_by_keyword(res[0][1], self.command_list)
 
     def get_input(self):
         """Function for getting user input"""
@@ -158,7 +160,7 @@ class InteractiveSession:
                                  command_list: list) -> InteractionCommand:
         ret = filter(lambda x: True if keyword in x.COMMANDS else False,
                      command_list)
-        return next(ret)
+        return next(ret)()
 
     @staticmethod
     def remove_command_part(entry, command) -> str:
@@ -186,7 +188,7 @@ def get_longest_match(search_for: str, search_in: str):
             return i
     return length
 
-def get_best_match(search_for: str, search_in: list) -> (int, str):
+def get_best_match(search_for: str, search_in: list) -> Tuple[int, str]:
     """Given list of strings and one string to search for, returns length of
     longest match and entry with longest match as tuple. If there
     is match of size 0, function returns None
