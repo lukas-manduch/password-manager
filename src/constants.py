@@ -30,6 +30,7 @@ RESPONSE_VALUES = 'values'
 
 RESPONSE_ERROR_UNKNOWN_COMMAND = "Unknown command"
 RESPONSE_ERROR_ARGUMENTS = "Bad or missing arguments"
+RESPONSE_ERROR_OUT_OF_RANGE = "Given index is out of range"
 
 # Settings
 SETTINGS_FILE_PATH = "file_path"

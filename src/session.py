@@ -4,7 +4,7 @@ dictionaries and maybe performs some actions over parts in core module
 dictionary
 """
 
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 
 import constants
 from core import PasswordFileManager
@@ -21,7 +21,7 @@ class SessionController(object):
         self.file_path = settings[constants.SETTINGS_FILE_PATH]
         self.pass_file: Optional[PasswordFileManager] = None
         self.store: Optional[KeyValueStore] = None
-        self.indices: List[int] = list() # Found indices
+        self.search_indices: List[int] = list() # Found indices
 
     def update_status(self) -> dict:
         """Reinitialize self, try to read file create index and so on. Set
@@ -46,7 +46,7 @@ class SessionController(object):
         if not self.state:
             result = self.update_status()
             if not self.state:
-                return result
+                return result # Something went wrong
 
         command = data.get(constants.COMMAND, "")
         # ADD
@@ -62,27 +62,40 @@ class SessionController(object):
         # ERROR
         return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
 
-    def save_search_result(self, data: dict):
-        """Save results from search command. They will be used by other
-        commands, like delete, or show"""
-        pass
-
-    def search(self, search_pattern: str) -> dict:
-        """Method representing command search"""
-        assert self.store is not None
+    def show(self, indices: Optional[List[int]] = None) -> Dict[str, Any]:
+        """Return indices from search which already happened.  In INDICES
+        you can specify which one you want to show. Default is all."""
         assert self.pass_file is not None
 
+        if indices is None:
+            indices = self.search_indices
+        unique_indices = set(indices)
+        if max(unique_indices) > len(self.search_indices):
+            return self.error_to_dict(constants.RESPONSE_ERROR_OUT_OF_RANGE)
+
+        selected_indices = [self.search_indices[x] for x in unique_indices]
         password_file_ref = self.pass_file # Hack for mypy
-        self.indices = self.store.find_key(search_pattern)
-        value_list = map(lambda x: password_file_ref[x], self.indices)
+
+        # Get key value pairs from password file
+        value_list = map(lambda x: password_file_ref[x], selected_indices)
+        # Form dict
         value_dict = map(lambda x: {constants.SECRET_KEY: x[0],
                                     constants.SECRET_VALUE: x[1]},
                          value_list)
         return {constants.RESPONSE: constants.RESPONSE_OK,
                 constants.RESPONSE_VALUES: list(value_dict)}
 
+    def search(self, search_pattern: str) -> dict:
+        """Method representing command search. Usually called only from
+        process"""
+        assert self.store is not None
+        assert self.pass_file is not None
+
+        self.search_indices = self.store.find_key(search_pattern)
+        return self.show()
+
     def add(self, key: str, value: str) -> dict:
-        """Append key and value to password file"""
+        """Append key and value to password file. Called from process"""
         assert self.store is not None
         assert self.pass_file is not None
         assert self.state is True
