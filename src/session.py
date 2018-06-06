@@ -59,6 +59,11 @@ class SessionController(object):
         # SEARCH
         elif command is constants.COMMAND_SEARCH:
             return self.search(data.get(constants.COMMAND_SEARCH_VALUE, ""))
+        # VIEW - SHOW
+        elif command is constants.COMMAND_SHOW:
+            indices = data.get(constants.COMMAND_SHOW_INDICES, None)
+            return self.show(indices)
+
         # ERROR
         return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
 
@@ -70,7 +75,7 @@ class SessionController(object):
         if indices is None:
             indices = self.search_indices
         unique_indices = set(indices)
-        if max(unique_indices) > len(self.search_indices):
+        if not unique_indices or max(unique_indices) > len(self.search_indices):
             return self.error_to_dict(constants.RESPONSE_ERROR_OUT_OF_RANGE)
 
         selected_indices = [self.search_indices[x] for x in unique_indices]
