@@ -198,3 +198,29 @@ def get_best_match(search_for: str, search_in: list) -> Tuple[int, str]:
         return max(res, key=lambda x: x[0])
     except ValueError as _ve:
         return (0, '')
+
+def parse_numbers(input_string: str) -> List[int]:
+    """Given string with numbers, extract theese numbers,
+    and return them as list of ints.
+
+    Examples:
+    1 2 ,3 --> [1, 2, 3]
+    1,,23 4 --> [1, 23, 4]"""
+    building_number = False
+    current_number = ""
+    return_digits = []
+    for char in input_string:
+        if char.isdigit():
+            building_number = True
+            current_number += char
+        else:
+            # If we just finished one number, append it
+            if building_number:
+                return_digits.append(int(current_number))
+                building_number = False
+                current_number = ""
+            # else this is just some trash
+    # Check for last number
+    if building_number:
+        return_digits.append(int(current_number))
+    return return_digits
