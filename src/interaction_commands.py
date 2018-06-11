@@ -1,7 +1,7 @@
 """This module contains definitions of commands, which can be used by repl
 defined in interaction
 """
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import constants
 import interaction
@@ -14,7 +14,7 @@ class SearchInteractionCommand(interaction.InteractionCommand):
     """
     COMMANDS = ['search', 'find']
 
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term = additional_input.get(constants.SEARCH_INTERACTION_PROMPT, "")
 
         if term == "":
@@ -36,7 +36,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
     by two empty lines
     """
     COMMANDS = ["add"]
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term, value = "", ""
         # Get key
         term = additional_input.get(constants.COMMAND_ADD_KEY, "")
@@ -88,10 +88,23 @@ class AddInteractionCommand(interaction.InteractionCommand):
 class DeleteInteractionCommand(interaction.InteractionCommand):
     """Delete command"""
     COMMANDS = ['delete', 'remove']
-
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
+        pass
 ###########################################################################
 
 
 class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
     COMMANDS = ['view', 'show']
+
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
+        """Take input and find indices in it.  If there are not any,
+        core will assume some default count."""
+        indices = interaction.parse_numbers(user_input)
+        ret: Dict[str, Any] = {constants.COMMAND: constants.COMMAND_SHOW}
+
+        # If user entered indices, show only those
+        if indices:
+            ret[constants.COMMAND_SHOW_INDICES] = indices
+
+        return ret

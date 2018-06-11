@@ -1,7 +1,8 @@
 """Module containing functions for user interaction with password
 manager - parsing input displaying messages etc.
 """
-from typing import Dict, List, Tuple
+import abc
+from typing import Any, Dict, List, Tuple
 
 import constants
 
@@ -21,7 +22,7 @@ class InputNeeded(Exception):
 ###########################################################################
 
 
-class InteractionCommand(object):
+class InteractionCommand(abc.ABC):
     """Base class for command parsers
 
     TODO: Neither of theese commands should be class. But I don't know
@@ -32,7 +33,8 @@ class InteractionCommand(object):
     def __init__(self):
         pass
 
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    @abc.abstractmethod
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         """Method for parsing user input.  USER_INPUT contains input eneterd
         by user (but command type is cut off), and ADDITIONAL_INPUT
         contains input collected by InputNeeded exceptions.
@@ -42,7 +44,6 @@ class InteractionCommand(object):
         Throws InputNeeded if command is incomplete
 
         """
-        pass
 
     @staticmethod
     def help() -> str:
@@ -61,7 +62,7 @@ class HelpAmbiguousInteractionCommand(InteractionCommand):
         super().__init__()
         self.commands = command_list
 
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         description = constants.HELP_AMBIGUOUS + "{}".format(self.commands)
         raise InputNeeded(key_description=description)
 
@@ -74,7 +75,7 @@ class HelpInteractionCommand(InteractionCommand):
     """
     COMMANDS = ['help', '?']
 
-    def parse(self, user_input: str, additional_input: dict) -> dict:
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         raise InputNeeded(key_description="Some help?")
 
 ###########################################################################

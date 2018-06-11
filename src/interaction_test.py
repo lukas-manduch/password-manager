@@ -4,11 +4,12 @@ import unittest.mock
 
 from interaction_commands import SearchInteractionCommand
 from interaction_commands import AddInteractionCommand
+from interaction_commands import ViewInteractionCommand
 import interaction
 import constants
 
 # pylint: disable=C0111
-class EncoderDecoderTestCase(unittest.TestCase):
+class InteractionHelperMethodsTestCase(unittest.TestCase):
     def test_lognest_match(self):
         self.assertEqual(3, interaction.get_longest_match("search", "sea abc"))
         self.assertEqual(1, interaction.get_longest_match("search", "sabc"))
@@ -25,6 +26,15 @@ class EncoderDecoderTestCase(unittest.TestCase):
             ["find", "search", "simple"]
         )
         self.assertEqual((3, 'search'), res)
+
+    def test_parse_numbers(self):
+        func = interaction.parse_numbers
+        self.assertEqual([], func(""))
+        self.assertEqual([1, 2, 3], func("1[2]3"))
+        self.assertEqual([1, 2, 3], func("1, 2, -3"))
+        self.assertEqual([21, 22, 23], func("21.22,23"))
+        self.assertEqual([], func("as;a,fa."))
+        self.assertEqual([1], func("as;1,fa."))
 
 
 class SearchCommandsTestCase(unittest.TestCase):
@@ -99,6 +109,22 @@ class AddCommandsTestCase(unittest.TestCase):
         inp.append("")
         out = AddInteractionCommand.get_value_or_raise(inp)
         self.assertEqual("abc\n\n", out)
+
+class ShowCommandTestCase(unittest.TestCase):
+    def test_command_wihtout_indices(self):
+        command = ViewInteractionCommand()
+        expected = {constants.COMMAND: constants.COMMAND_SHOW}
+        self.assertEqual(expected, command.parse("", {}))
+        self.assertEqual(expected, command.parse("qwe ere", {}))
+
+    def test_command_wiht_indices(self):
+        command = ViewInteractionCommand()
+        expected = {constants.COMMAND: constants.COMMAND_SHOW,
+                    constants.COMMAND_SHOW_INDICES: [1, 4, 5]}
+        self.assertEqual(expected, command.parse("1 ,4, 5", {}))
+        self.assertEqual(expected, command.parse("1 4 5", {}))
+        self.assertEqual(expected, command.parse("1,4.5", {}))
+        self.assertEqual(expected, command.parse("1 4a5", {}))
 
 
 class InteractiveSessionTestCase(unittest.TestCase):
