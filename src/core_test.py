@@ -1,8 +1,10 @@
 """Tests for core functionality of password manager"""
-import os
 from functools import partial
+import os
 import tempfile
 import unittest
+import unittest.mock
+from unittest.mock import patch
 
 import constants
 import core
@@ -35,9 +37,9 @@ class EncoderDecoderTestCase(unittest.TestCase):
 
 
 
-class PasswordFileManagerTestCase(unittest.TestCase):
+class PasswordFileManagerIOTestCase(unittest.TestCase):
     def setUp(self):
-        tup = tempfile.mkstemp(prefix='PasswordFileManagerTestCase')
+        tup = tempfile.mkstemp(prefix='PasswordFileManagerIOTestCase')
         self.file_path = tup[1]
         os.write(tup[0],
                  b'362038206d7920 6b6 579206d790a76616c7565 |\
@@ -58,6 +60,37 @@ class PasswordFileManagerTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.file_path)
+
+
+class PasswordFileManagerTestCase(unittest.TestCase):
+    def setUp(self):
+        self.content = [("key 1","some val"),
+                        ("key 2","other val"),
+                        ("key1 3","value"),
+                        ("key 4","val"),
+                        ("key 6","1234")]
+        self.mock1 = patch("core.PasswordFileManager.read_contents")
+        self.mock1.start()
+        self.mock2 = patch("core.parse_contents", return_value=self.content[:])
+        self.mock2.start()
+        self.addCleanup(self.mock1.stop)
+        self.addCleanup(self.mock2.stop)
+
+    def test_delete_one_entry(self):
+        pass_man = core.PasswordFileManager("")
+        pass_man.delete_entry(1)
+        expected = self.content[:]
+        del expected[1]
+        self.assertEqual(expected, pass_man.contents)
+
+    def test_delete_multiple_entries(self):
+        pass_man = core.PasswordFileManager("")
+        pass_man.delete_indices([4, 4, 4, 0, 1])
+        expected = self.content[:]
+        del expected[4]
+        del expected[1]
+        del expected[0]
+        self.assertEqual(expected, pass_man.contents)
 
 
 class KeyValueSearchTestCase(unittest.TestCase):

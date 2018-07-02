@@ -74,6 +74,18 @@ class PasswordFileManager:
         write_file(self.file_path,
                    serialize_contents(self.contents))
 
+    def delete_entry(self, index):
+        """Remove entry from memory (shifts entries one index up)"""
+        if index < len(self.contents):
+            del self.contents[index]
+
+    def delete_indices(self, indices: List[int]):
+        """Delete all entries passed as indices via argument"""
+        indices = sorted(indices, reverse=True)
+        for x in indices:
+            if x < len(self.contents):
+                del self.contents[x]
+
 
     class PasswordFileManagerIterator:
         """Iterator for class PasswordFileManager"""
@@ -235,7 +247,7 @@ def _get_ratio(sequence_matcher, text):
     sequence_matcher.set_seq1(text)
     return sequence_matcher.ratio()
 
-def search(entries, text: str, func, junk_filter=None, max_results=10):
+def search(entries, text: str, func, junk_filter=None, max_results=10) -> List[int]:
     """Search in ENTRIES for TEXT. Return list of indices of entries with
     best match. Match max MAX_RESULTS entries. FUNC is given one entry
     and must transform it to one string.
