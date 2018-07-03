@@ -82,9 +82,9 @@ class PasswordFileManager:
     def delete_indices(self, indices: List[int]):
         """Delete all entries passed as indices via argument"""
         indices = sorted(indices, reverse=True)
-        for x in indices:
-            if x < len(self.contents):
-                del self.contents[x]
+        for index in indices:
+            if index < len(self.contents):
+                del self.contents[index]
 
 
     class PasswordFileManagerIterator:

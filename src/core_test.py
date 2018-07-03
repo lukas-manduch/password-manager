@@ -64,11 +64,11 @@ class PasswordFileManagerIOTestCase(unittest.TestCase):
 
 class PasswordFileManagerTestCase(unittest.TestCase):
     def setUp(self):
-        self.content = [("key 1","some val"),
-                        ("key 2","other val"),
-                        ("key1 3","value"),
-                        ("key 4","val"),
-                        ("key 6","1234")]
+        self.content = [("key 1", "some val"),
+                        ("key 2", "other val"),
+                        ("key1 3", "value"),
+                        ("key 4", "val"),
+                        ("key 6", "1234")]
         self.mock1 = patch("core.PasswordFileManager.read_contents")
         self.mock1.start()
         self.mock2 = patch("core.parse_contents", return_value=self.content[:])
