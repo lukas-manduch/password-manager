@@ -19,6 +19,11 @@ ForEach-Object {
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
+
+    & $interpreter "-m", "mypy", $_.FullName 2>&1 | % { "$_" }
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
 }
 
 exit $LASTEXITCODE
