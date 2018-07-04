@@ -67,7 +67,6 @@ class PasswordFileManager:
     def append_entry(self, first, second):
         """Append entry to list. For now, also write to file"""
         self.contents.append((first, second))
-        self.save_contents()
 
     def save_contents(self):
         """Write current contents of this object to file"""

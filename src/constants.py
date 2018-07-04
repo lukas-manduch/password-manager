@@ -25,6 +25,11 @@ COMMAND_ADD_VALUE = SECRET_VALUE
 COMMAND_SHOW = 'show'
 COMMAND_SHOW_INDICES = 'indices'
 
+# Delete
+COMMAND_DELETE = 'delete'
+COMMAND_DELETE_INDICES = 'DELETE_INDICES'
+
+
 # Response
 RESPONSE = 'status'
 RESPONSE_ERROR = 'error'
@@ -35,6 +40,9 @@ RESPONSE_VALUES = 'values'
 RESPONSE_ERROR_UNKNOWN_COMMAND = "Unknown command"
 RESPONSE_ERROR_ARGUMENTS = "Bad or missing arguments"
 RESPONSE_ERROR_OUT_OF_RANGE = "Given index is out of range"
+RESPONSE_ERROR_REQUIRES_SEARCH = "Given command requires search before executing"
+RESPONSE_ERROR_UNKNOWN_ERROR = "Unknown error occured, command was not successful"
+RESPONSE_ERROR_INVALID_ARGUMENT = "Invalid argument passed to command"
 
 # Settings
 SETTINGS_FILE_PATH = "file_path"

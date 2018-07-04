@@ -44,6 +44,7 @@ class SessionController(object):
     def process(self, data: dict) -> dict:
         """Process given command and return result as dictionary."""
         if not self.state:
+            self.search_indices.clear() # If there was some search now is invalid
             result = self.update_status()
             if not self.state:
                 return result # Something went wrong
@@ -63,6 +64,14 @@ class SessionController(object):
         elif command is constants.COMMAND_SHOW:
             indices = data.get(constants.COMMAND_SHOW_INDICES, None)
             return self.show(indices)
+        # DELETE
+        elif command is constants.COMMAND_DELETE:
+            indices = data.get(constants.COMMAND_DELETE_INDICES, [])
+            try:
+                iter(indices)
+                return self.delete(indices)
+            except TypeError:
+                return self.error_to_dict(constants.RESPONSE_ERROR_INVALID_ARGUMENT)
 
         # ERROR
         return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
@@ -108,8 +117,32 @@ class SessionController(object):
         self.state = False # Force reload of key value store
         try:
             self.pass_file.append_entry(key, value)
+            self.pass_file.save_contents()
         except OSError as error:
             return self.error_to_dict(str(error))
+        return {constants.RESPONSE: constants.RESPONSE_OK}
+
+    def delete(self, indices: List[int]) -> Dict[str, str]:
+        """Delete entries specified in indices from file.  Indices
+        are from previous search"""
+        assert self.store is not None
+        assert self.pass_file is not None
+        assert self.state is True
+
+        if not self.search_indices:
+            return self.error_to_dict(constants.RESPONSE_ERROR_REQUIRES_SEARCH)
+        if max(indices) >= len(self.search_indices):
+            return self.error_to_dict(constants.RESPONSE_ERROR_OUT_OF_RANGE)
+
+        self.state = False # Reload contents after delete
+
+        try:
+            delete_indices = map(lambda x: self.search_indices[x], set(indices))
+            self.pass_file.delete_indices(list(delete_indices))
+            self.pass_file.save_contents()
+        except OSError:
+            return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_ERROR)
+
         return {constants.RESPONSE: constants.RESPONSE_OK}
 
     @staticmethod
