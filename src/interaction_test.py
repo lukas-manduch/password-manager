@@ -5,6 +5,7 @@ import unittest.mock
 from interaction_commands import SearchInteractionCommand
 from interaction_commands import AddInteractionCommand
 from interaction_commands import ViewInteractionCommand
+from interaction_commands import DeleteInteractionCommand
 import interaction
 import constants
 
@@ -125,6 +126,36 @@ class ShowCommandTestCase(unittest.TestCase):
         self.assertEqual(expected, command.parse("1 4 5", {}))
         self.assertEqual(expected, command.parse("1,4.5", {}))
         self.assertEqual(expected, command.parse("1 4a5", {}))
+
+
+class DeleteCommandTestCase(unittest.TestCase):
+    def setUp(self):
+        self.command_list = [DeleteInteractionCommand,
+                             interaction.HelpInteractionCommand]
+
+    # Dont print to test output
+    @unittest.mock.patch('interaction.print', unittest.mock.Mock())
+    def test_command_wihtout_indices(self):
+        session = interaction.InteractiveSession(self.command_list)
+        input_mock = unittest.mock.Mock()
+        input_mock.side_effect = ['delete', 'trash', '1 2']
+        session.get_input = input_mock
+        ret = session.repl()
+        self.assertEqual(3, input_mock.call_count)
+        self.assertEqual(ret[constants.COMMAND], constants.COMMAND_DELETE)
+        self.assertEqual(ret[constants.COMMAND_DELETE_INDICES],
+                         [1, 2])
+
+    def test_command_with_indices(self):
+        session = interaction.InteractiveSession(self.command_list)
+        input_mock = unittest.mock.Mock()
+        input_mock.side_effect = ['de1 , 3', '1 2']
+        session.get_input = input_mock
+        ret = session.repl()
+        self.assertEqual(1, input_mock.call_count)
+        self.assertEqual(ret[constants.COMMAND], constants.COMMAND_DELETE)
+        self.assertEqual(ret[constants.COMMAND_DELETE_INDICES],
+                         [1, 3])
 
 
 class InteractiveSessionTestCase(unittest.TestCase):

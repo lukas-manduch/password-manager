@@ -86,11 +86,21 @@ class AddInteractionCommand(interaction.InteractionCommand):
 
 
 class DeleteInteractionCommand(interaction.InteractionCommand):
-    """Delete command"""
+    """Delete command, deletes previous search results based on indices given"""
     COMMANDS = ['delete', 'remove']
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
-        pass
-###########################################################################
+        """Take as input indices which should be deleted.  Indices are for
+        search list(something for which user already searched)"""
+        indices: List[int] = interaction.parse_numbers(user_input)
+        keyword_indices = additional_input.get(constants.COMMAND_DELETE_KEYWORD, "")
+        indices.extend(interaction.parse_numbers(keyword_indices))
+
+        if not indices:
+            raise interaction.InputNeeded(constants.COMMAND_DELETE_KEYWORD,
+                                          constants.COMMAND_DELETE_KEYWORD_HELP)
+
+        return {constants.COMMAND: constants.COMMAND_DELETE,
+                constants.COMMAND_DELETE_INDICES: indices}
 
 
 class ViewInteractionCommand(interaction.InteractionCommand):

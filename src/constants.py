@@ -28,6 +28,8 @@ COMMAND_SHOW_INDICES = 'indices'
 # Delete
 COMMAND_DELETE = 'delete'
 COMMAND_DELETE_INDICES = 'DELETE_INDICES'
+COMMAND_DELETE_KEYWORD = 'indices'
+COMMAND_DELETE_KEYWORD_HELP = 'Specify which indices from search should be deleted'
 
 
 # Response

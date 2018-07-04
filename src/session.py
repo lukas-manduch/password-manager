@@ -24,7 +24,7 @@ class SessionController(object):
         self.search_indices: List[int] = list() # Found indices
 
     def update_status(self) -> dict:
-        """Reinitialize self, try to read file create index and so on. Set
+        """Reinitialize self, try to read file create index and so on.  Set
         value self.ok to either True or False and also return dictionary in
         format used by process method
         """
@@ -93,7 +93,7 @@ class SessionController(object):
 
         # Get key value pairs from password file
         value_list = map(lambda x: password_file_ref[x], selected_indices)
-        # Form dict
+        # Tuples to dict
         value_dict = map(lambda x: {constants.SECRET_KEY: x[0],
                                     constants.SECRET_VALUE: x[1]},
                          value_list)
