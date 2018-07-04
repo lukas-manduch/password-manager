@@ -27,6 +27,19 @@ class SessionControllerTestCase(unittest.TestCase):
         self.import_mock = self.passwords_patcher.start()
         self.addCleanup(self.passwords_patcher.stop)
 
+    def test_invalid_command(self):
+        session_controller = session.SessionController(self.settings)
+        ret = session_controller.process({constants.COMMAND:
+                                          "abcd"})
+        self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
+        self.assertEqual(ret[constants.RESPONSE_ERROR],
+                         constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
+        # No command at all
+        ret = session_controller.process({"asda": "abcd"})
+        self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
+        self.assertEqual(ret[constants.RESPONSE_ERROR],
+                         constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
+
     def test_update_status(self):
         session_controller = session.SessionController(self.settings)
         session_controller.update_status()
@@ -128,7 +141,7 @@ class SessionControllerTestCase(unittest.TestCase):
         self.assertEqual(self.mock.delete_indices.call_count, 1)
         self.assertEqual(self.mock.save_contents.call_count, 1)
         self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_OK)
-        self.mock.delete_indices.assert_called_with([1,2])
+        self.mock.delete_indices.assert_called_with([1, 2])
         # Search again
         session_cont.update_status()
         session_cont.search("aa")

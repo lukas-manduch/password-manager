@@ -50,31 +50,32 @@ class SessionController(object):
                 return result # Something went wrong
 
         command = data.get(constants.COMMAND, "")
+        ret = self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
         # ADD
         if command is constants.COMMAND_ADD:
             key = data.get(constants.COMMAND_ADD_KEY, "")
             val = data.get(constants.COMMAND_ADD_VALUE, "")
             if not key or not val:
-                return self.error_to_dict(constants.RESPONSE_ERROR_ARGUMENTS)
-            return self.add(key, val)
+                ret = self.error_to_dict(constants.RESPONSE_ERROR_ARGUMENTS)
+            else:
+                ret = self.add(key, val)
         # SEARCH
         elif command is constants.COMMAND_SEARCH:
-            return self.search(data.get(constants.COMMAND_SEARCH_VALUE, ""))
+            ret = self.search(data.get(constants.COMMAND_SEARCH_VALUE, ""))
         # VIEW - SHOW
         elif command is constants.COMMAND_SHOW:
             indices = data.get(constants.COMMAND_SHOW_INDICES, None)
-            return self.show(indices)
+            ret = self.show(indices)
         # DELETE
         elif command is constants.COMMAND_DELETE:
             indices = data.get(constants.COMMAND_DELETE_INDICES, [])
             try:
                 iter(indices)
-                return self.delete(indices)
+                ret = self.delete(indices)
             except TypeError:
-                return self.error_to_dict(constants.RESPONSE_ERROR_INVALID_ARGUMENT)
+                ret = self.error_to_dict(constants.RESPONSE_ERROR_INVALID_ARGUMENT)
 
-        # ERROR
-        return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
+        return ret
 
     def show(self, indices: Optional[List[int]] = None) -> Dict[str, Any]:
         """Return indices from search which already happened.  In INDICES
