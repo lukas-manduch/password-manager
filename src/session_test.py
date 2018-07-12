@@ -14,7 +14,8 @@ import session
 class SessionControllerTestCase(unittest.TestCase):
     def setUp(self):
         self.settings = {
-            constants.SETTINGS_FILE_PATH : "abcd"
+            constants.SETTINGS_FILE_PATH : "abcd",
+            constants.SETTINGS_PASSWORD : "bfeg",
         }
         file_content = [("key1", "value1"),
                         ("key2", "value2"),

@@ -41,11 +41,12 @@ class PasswordFileManager:
     # TODO: Must be able to detect deleted separators
 
 
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: str, password: str) -> None:
         self.file_path = file_path
         # Read contents to memory
         contents = self.read_contents()
-        self.contents = parse_contents(contents)
+        self.cipher = Cipher(password)
+        self.contents = parse_contents(contents, self.cipher)
         self.position = 0
         self.version = 0
 
@@ -71,7 +72,7 @@ class PasswordFileManager:
     def save_contents(self):
         """Write current contents of this object to file"""
         write_file(self.file_path,
-                   serialize_contents(self.contents))
+                   serialize_contents(self.contents, self.cipher))
 
     def delete_entry(self, index):
         """Remove entry from memory (shifts entries one index up)"""
@@ -146,14 +147,18 @@ class Cipher(object):
         """Encrypt SECRET bytes with PASSWORD"""
         try:
             return self.fernet.encrypt(secret)
-        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey, TypeError):
+        except (cryptography.exceptions.InvalidSignature,
+                cryptography.fernet.InvalidToken,
+                cryptography.exceptions.InvalidKey, TypeError):
             return b''
 
     def decrypt(self, cipher_text: bytes) -> bytes:
         """Decrypt CIPHER_TEXT bytes with PASSWORD"""
         try:
             return self.fernet.decrypt(cipher_text)
-        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey, TypeError):
+        except (cryptography.exceptions.InvalidSignature,
+                cryptography.fernet.InvalidToken,
+                cryptography.exceptions.InvalidKey, TypeError):
             return b''
 
 ###########################################################################
@@ -214,7 +219,7 @@ def parse_entry(entry: bytes) -> Tuple[str, str]:
             process_entry(text[int(data[0]) + 1 :
                                int(data[0]) + 1 + int(data[1])]))
 
-def parse_contents(contents) -> List[Tuple[str, str]]:
+def parse_contents(contents, cipher: Cipher) -> List[Tuple[str, str]]:
     """Given iterable object, containing entries from password file for
     each entry parse its contents (also decrypt) and return as list of
     tuples (key, value)
@@ -227,15 +232,17 @@ def parse_contents(contents) -> List[Tuple[str, str]]:
 
     """
     tmp = map(bytes.fromhex, contents)
-    return list(map(parse_entry, tmp))
+    decrypted = map(cipher.decrypt, tmp)
+    decrypted = filter(len, decrypted)
+    return list(map(parse_entry, decrypted))
 
-def serialize_contents(contents) -> str:
+def serialize_contents(contents, cipher: Cipher) -> str:
     """Given iterable of tuples (str, str), transform them to password
     manager format, eventually encrypt, than transform to hex and join
     to string
     """
     serialized = map(lambda x: serialize_entry(x[0], x[1]), contents)
-    hserialized = map(lambda x: x.hex(), serialized)
+    hserialized = map(lambda x: cipher.encrypt(x).hex(), serialized)
     return constants.SPLITTER_NEWLINE.join(hserialized)
 
 

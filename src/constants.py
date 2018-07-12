@@ -48,6 +48,7 @@ RESPONSE_ERROR_INVALID_ARGUMENT = "Invalid argument passed to command"
 
 # Settings
 SETTINGS_FILE_PATH = "file_path"
+SETTINGS_PASSWORD = "password"
 
 # Literals for interaction module
 UNHANDLED_EXCEPTION = "Sorry, unhandled exception occured.\

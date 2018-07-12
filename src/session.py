@@ -19,6 +19,7 @@ class SessionController(object):
     def __init__(self, settings: dict) -> None:
         self.state = False # Valid or invalid state
         self.file_path = settings[constants.SETTINGS_FILE_PATH]
+        self.password = settings[constants.SETTINGS_PASSWORD]
         self.pass_file: Optional[PasswordFileManager] = None
         self.store: Optional[KeyValueStore] = None
         self.search_indices: List[int] = list() # Found indices
@@ -32,7 +33,7 @@ class SessionController(object):
         ret: Dict[str, str] = dict()
         try:
             if self.pass_file is None:
-                self.pass_file = PasswordFileManager(self.file_path)
+                self.pass_file = PasswordFileManager(self.file_path, self.password)
 
             self.store = KeyValueStore(self.pass_file)
             ret = {constants.RESPONSE: constants.RESPONSE_OK}
