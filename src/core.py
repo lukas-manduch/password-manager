@@ -146,14 +146,14 @@ class Cipher(object):
         """Encrypt SECRET bytes with PASSWORD"""
         try:
             return self.fernet.encrypt(secret)
-        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey):
+        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey, TypeError):
             return b''
 
     def decrypt(self, cipher_text: bytes) -> bytes:
         """Decrypt CIPHER_TEXT bytes with PASSWORD"""
         try:
             return self.fernet.decrypt(cipher_text)
-        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey):
+        except (cryptography.exceptions.InvalidSignature, cryptography.exceptions.InvalidKey, TypeError):
             return b''
 
 ###########################################################################
