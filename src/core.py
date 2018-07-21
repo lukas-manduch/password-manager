@@ -38,17 +38,18 @@ class PasswordFileManager:
 
     # TODO: Checks for empty file, and file modified since read
     # TODO: Options for ignoring errors
-    # TODO: Must be able to detect deleted separators
-
 
     def __init__(self, file_path: str, password: str) -> None:
         self.file_path = file_path
         # Read contents to memory
-        contents = self.read_contents()
+        contents = list(self.read_contents())
         self.cipher = Cipher(password)
         self.contents = parse_contents(contents, self.cipher)
         self.position = 0
         self.version = 0
+        self.success = 0 # Ratio of decrypted/all (should be 1)
+        if len(contents):
+            self.success = len(self.contents) // len(contents)
 
     def __iter__(self):
         """Create iterator"""

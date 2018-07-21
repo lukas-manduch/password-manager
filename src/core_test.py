@@ -48,15 +48,18 @@ class PasswordFileManagerIOTestCase(unittest.TestCase):
         tup = tempfile.mkstemp(prefix='PasswordFileManagerIOTestCase')
         os.close(tup[0])
         file_path = tup[1]
-        #self.addCleanup(os.remove, file_path)
+        self.addCleanup(os.remove, file_path)
 
         pass_file = core.PasswordFileManager(file_path, "abcd123")
         for entry in file_content:
             pass_file.append_entry(entry[0], entry[1])
         pass_file.save_contents()
 
-        result = [data for data in core.PasswordFileManager(file_path, "abcd123")]
+        pass_file2 = core.PasswordFileManager(file_path, "abcd123")
+        result = [data for data in pass_file2]
+
         self.assertEqual(file_content, result)
+        self.assertEqual(1, pass_file2.success)
 
     def test_read_write(self):
         tup = tempfile.mkstemp(prefix='PasswordFileManagerIOTestCase')
