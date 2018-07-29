@@ -11,7 +11,7 @@ from core import PasswordFileManager
 from core import KeyValueStore
 
 
-class SessionController(object):
+class SessionController:
     """Class grouping main functionality of password manager.  Input
     should be passed to method process as dictionary.
     """
