@@ -48,7 +48,7 @@ class PasswordFileManager:
         self.position = 0
         self.version = 0
         self.success = 0 # Ratio of decrypted/all (should be 1)
-        if len(contents):
+        if contents:
             self.success = len(self.contents) // len(contents)
 
     def __iter__(self):
