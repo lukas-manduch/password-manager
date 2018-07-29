@@ -103,7 +103,7 @@ class PasswordFileManager:
 
 ###########################################################################
 
-class KeyValueStore(object):
+class KeyValueStore:
     """Wrapper around search function, which works with keys and
     values. Additionally provides hints to search, for ignoring non
     word characters.
@@ -134,7 +134,7 @@ class KeyValueStore(object):
 ###########################################################################
 
 
-class Cipher(object):
+class Cipher:
     """Class for encryption decryption. In future cryptography library
     will probably be removed and replaced with direct calls to openssl"""
 
