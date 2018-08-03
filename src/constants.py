@@ -4,7 +4,9 @@ SPLITTER_NEWLINE = '|\n'
 MAX_RESULTS = 10
 PROMPT_SYMBOL = '> '
 
-# Main arguments
+###############
+
+DEFAULT_SETTINGS = {"file_path" : "~/pass_man/passwords.txt"}
 
 # Format passed to main session is like {COMMAND: COMMAND_ADD,
 # COMMAND_ADD_KEY: key, COMMAND_ADD_VALUE:value}
