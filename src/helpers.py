@@ -1,4 +1,5 @@
 """Module containing helper functions"""
+import argparse
 import os
 from typing import Any, Dict
 
@@ -39,7 +40,32 @@ def create_password_file(settings: Dict[str, str], frontend: Module, backend: Mo
     except OSError:
         return False
 
+def parse_arguments(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
+    """Parse program arguments and set them in SETTINGS"""
+    parser = argparse.ArgumentParser(prog=constants.PROGRAM_NAME)
+    parser.add_argument(constants.ARG_PASSOWRD_SHORT, constants.ARG_PASSOWRD,
+                        help=constants.ARG_PASSOWRD_DESCRIPTION, type=str, dest='password')
+    parser.add_argument(constants.ARG_FILEPATH, constants.ARG_FILEPATH_SHORT,
+                        help=constants.ARG_FILEPATH_DESCRIPTION, type=str, dest='path')
+    args = parser.parse_args()
 
-def parse_settings(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
+    if args.password:
+        settings[constants.SETTINGS_PASSWORD] = args.password
+    if args.path:
+        settings[constants.SETTINGS_FILE_PATH] = args.path
+    return True
+
+def set_settings(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
+    """Merge default and parameter settings"""
+    new_settings = constants.DEFAULT_SETTINGS
+    new_settings.update(settings)
+    settings.update(new_settings)
+    return True
+
+def get_password(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
+    """If password is not set, get password from stdin"""
+    return True
+
+def main(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
     """Do something"""
-    pass
+    return True

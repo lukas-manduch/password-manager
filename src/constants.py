@@ -1,45 +1,46 @@
 """Module contains strings and definitions for password manager"""
-SPLITTER = '|'
-SPLITTER_NEWLINE = '|\n'
+SPLITTER = "|"
+SPLITTER_NEWLINE = "|\n"
 MAX_RESULTS = 10
-PROMPT_SYMBOL = '> '
+PROMPT_SYMBOL = "> "
+PROGRAM_NAME = "passman"
 
 ###############
 
-DEFAULT_SETTINGS = {"file_path" : "~/pass_man/passwords.txt"}
+DEFAULT_SETTINGS = {"file_path": "~/pass_man/passwords.txt"}
 
 # Format passed to main session is like {COMMAND: COMMAND_ADD,
 # COMMAND_ADD_KEY: key, COMMAND_ADD_VALUE:value}
-COMMAND = 'command'
+COMMAND = "command"
 
-SECRET_KEY = 'key'
-SECRET_VALUE = 'value'
+SECRET_KEY = "key"
+SECRET_VALUE = "value"
 # Search
-COMMAND_SEARCH = 'search'
-COMMAND_SEARCH_VALUE = 'term'
+COMMAND_SEARCH = "search"
+COMMAND_SEARCH_VALUE = "term"
 
 # Add
-COMMAND_ADD = 'add'
+COMMAND_ADD = "add"
 COMMAND_ADD_KEY = SECRET_KEY
 COMMAND_ADD_VALUE = SECRET_VALUE
 
 # VIEW/SHOW
-COMMAND_SHOW = 'show'
-COMMAND_SHOW_INDICES = 'indices'
+COMMAND_SHOW = "show"
+COMMAND_SHOW_INDICES = "indices"
 
 # Delete
-COMMAND_DELETE = 'delete'
-COMMAND_DELETE_INDICES = 'DELETE_INDICES'
-COMMAND_DELETE_KEYWORD = 'indices'
-COMMAND_DELETE_KEYWORD_HELP = 'Specify which indices from search should be deleted'
+COMMAND_DELETE = "delete"
+COMMAND_DELETE_INDICES = "DELETE_INDICES"
+COMMAND_DELETE_KEYWORD = "indices"
+COMMAND_DELETE_KEYWORD_HELP = "Specify which indices from search should be deleted"
 
 
 # Response
-RESPONSE = 'status'
-RESPONSE_ERROR = 'error'
-RESPONSE_OK = 'ok'
+RESPONSE = "status"
+RESPONSE_ERROR = "error"
+RESPONSE_OK = "ok"
 
-RESPONSE_VALUES = 'values'
+RESPONSE_VALUES = "values"
 
 RESPONSE_ERROR_UNKNOWN_COMMAND = "Unknown command"
 RESPONSE_ERROR_ARGUMENTS = "Bad or missing arguments"
@@ -47,6 +48,8 @@ RESPONSE_ERROR_OUT_OF_RANGE = "Given index is out of range"
 RESPONSE_ERROR_REQUIRES_SEARCH = "Given command requires search before executing"
 RESPONSE_ERROR_UNKNOWN_ERROR = "Unknown error occured, command was not successful"
 RESPONSE_ERROR_INVALID_ARGUMENT = "Invalid argument passed to command"
+
+#################################################################################
 
 # Settings
 SETTINGS_FILE_PATH = "file_path"
@@ -66,3 +69,17 @@ ADD_INTERACTION_KEY_MISSING = "Command - Add\
 \nThen enter value. Value must end with two empty lines"
 
 HELP_AMBIGUOUS = "Sorry command is ambiguous:\n"
+
+### PARAMETERS ###
+
+ARG_PASSOWRD = "--password"
+ARG_PASSOWRD_SHORT = "-p"
+ARG_PASSOWRD_DESCRIPTION = (
+    "You can specify password as argument, and it won't be requested interactively"
+)
+
+ARG_FILEPATH = "--file"
+ARG_FILEPATH_SHORT = "-f"
+ARG_FILEPATH_DESCRIPTION = (
+    "Specify file which should be used for storing passwords, instead of default"
+)

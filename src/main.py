@@ -2,34 +2,39 @@
 passwords :)
 """
 
-
+from typing import Dict
 
 import interaction
+import helpers
 import interaction_commands
-import settings
-from session import SessionController
 
-COMMANDS_LIST = [interaction.HelpInteractionCommand,
-                 interaction_commands.SearchInteractionCommand,
-                 interaction_commands.AddInteractionCommand,
-                 interaction_commands.DeleteInteractionCommand,
-                 interaction_commands.ViewInteractionCommand]
-
-def main():
-    """Main function"""
-    cont = SessionController(settings.get_settings())
-
-    session = interaction.InteractiveSession(COMMANDS_LIST)
-    while True:
-        result = session.repl()
-        print(result)
-
-        print(cont.process(result))
+COMMANDS_LIST = [
+    interaction.HelpInteractionCommand,
+    interaction_commands.SearchInteractionCommand,
+    interaction_commands.AddInteractionCommand,
+    interaction_commands.DeleteInteractionCommand,
+    interaction_commands.ViewInteractionCommand,
+]
 
 
+INIT_LIST = [
+    helpers.parse_arguments,
+    helpers.set_settings,
+    # Load frontend and backend
+    helpers.create_password_file,
+    helpers.get_password,
+    helpers.main,
+]
 
-if __name__ == '__main__':
-    SessionController(settings.get_settings())
-    print("EHLO")
-    main()
+if __name__ == "__main__":
+    settings: Dict[str, str] = {}
+    FRONTEND = helpers.Module(None)
+    BACKEND = helpers.Module(None)
+    for func in INIT_LIST:
+        print(str(func))
+        if not func(settings, FRONTEND, BACKEND):
+            print("Error")
+            exit(1)
+    print("Ok")
+    print(settings)
     exit(0)
