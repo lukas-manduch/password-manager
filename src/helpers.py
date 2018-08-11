@@ -1,5 +1,6 @@
 """Module containing helper functions"""
 import argparse
+import getpass
 import os
 from typing import Any, Dict
 
@@ -64,6 +65,17 @@ def set_settings(settings: Dict[str, str], frontend: Module, backend: Module) ->
 
 def get_password(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
     """If password is not set, get password from stdin"""
+    if not constants.SETTINGS_PASSWORD in settings:
+        password = ""
+        while not password:
+            password = getpass.getpass()
+
+        settings[constants.SETTINGS_PASSWORD] = password
+    return True
+
+def check_password(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
+    """Check if password is correct, and if not quit.  If settings has
+    IGNORE_ERRORS set, continue anyway"""
     return True
 
 def main(settings: Dict[str, str], frontend: Module, backend: Module) -> bool:
