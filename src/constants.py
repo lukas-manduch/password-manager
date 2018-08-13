@@ -7,7 +7,6 @@ PROGRAM_NAME = "passman"
 
 ###############
 
-DEFAULT_SETTINGS = {"file_path": "~/pass_man/passwords.txt"}
 
 # Format passed to main session is like {COMMAND: COMMAND_ADD,
 # COMMAND_ADD_KEY: key, COMMAND_ADD_VALUE:value}
@@ -54,6 +53,23 @@ RESPONSE_ERROR_INVALID_ARGUMENT = "Invalid argument passed to command"
 # Settings
 SETTINGS_FILE_PATH = "file_path"
 SETTINGS_PASSWORD = "password"
+
+
+SETTINGS_INTERACTION_COMMANDS_LIST = "interaction_commands"
+
+DEFAULT_SETTINGS = {
+    SETTINGS_FILE_PATH: "~/pass_man/passwords.txt",
+    # List of classes for interactive session
+    SETTINGS_INTERACTION_COMMANDS_LIST: [
+        "HelpInteractionCommand",
+        "AddInteractionCommand",
+        "DeleteInteractionCommand",
+        "SearchInteractionCommand",
+        "ViewInteractionCommand",
+    ],
+}
+
+##################################################################################
 
 # Literals for interaction module
 UNHANDLED_EXCEPTION = "Sorry, unhandled exception occured.\

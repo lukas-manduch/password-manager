@@ -2,32 +2,23 @@
 passwords :)
 """
 
-from typing import Dict
+from typing import Any, Dict
 
-import interaction
 import helpers
-import interaction_commands
-
-COMMANDS_LIST = [
-    interaction.HelpInteractionCommand,
-    interaction_commands.SearchInteractionCommand,
-    interaction_commands.AddInteractionCommand,
-    interaction_commands.DeleteInteractionCommand,
-    interaction_commands.ViewInteractionCommand,
-]
-
 
 INIT_LIST = [
     helpers.parse_arguments,
     helpers.set_settings,
-    # Load frontend and backend
     helpers.create_password_file,
     helpers.get_password,
+    helpers.load_frontend,
+    # Load backeng
+    helpers.check_password,
     helpers.main,
 ]
 
 if __name__ == "__main__":
-    settings: Dict[str, str] = {}
+    settings: Dict[str, Any] = {}
     FRONTEND = helpers.Module(None)
     BACKEND = helpers.Module(None)
     for func in INIT_LIST:

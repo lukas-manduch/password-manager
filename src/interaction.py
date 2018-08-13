@@ -2,9 +2,12 @@
 manager - parsing input displaying messages etc.
 """
 import abc
-from typing import Any, Dict, List, Tuple
+import os
+from typing import Any, Dict, List, Tuple, Type
 
 import constants
+
+COMMAND_MAP: Dict[str, Type[Any]] = dict()
 
 # Disable unused argument warning
 # pylint: disable=W0613
@@ -78,6 +81,8 @@ class HelpInteractionCommand(InteractionCommand):
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         raise InputNeeded(key_description="Some help?")
 
+COMMAND_MAP["HelpInteractionCommand"] = HelpInteractionCommand
+
 ###########################################################################
 # Rest of theese commands is implemented in interaction_commands.py,
 # theese are only ones necessary for correct function of repl
@@ -99,6 +104,10 @@ class InteractiveSession:
         self.keyword = ""
         self.show_prompt = True
         self.show_help = True
+
+    def process(self, data: dict) -> dict:
+        """Main communication method for frontend"""
+        pass
 
     def repl(self) -> dict:
         """GET command from user input and return it as dict. On
@@ -155,6 +164,12 @@ class InteractiveSession:
         if self.show_prompt:
             prompt = self.keyword + constants.PROMPT_SYMBOL
         return input(prompt).strip()
+
+
+    @staticmethod
+    def quit():
+        """This method should be called before exitting, to clear console"""
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     @staticmethod
     def _find_command_by_keyword(keyword: str,

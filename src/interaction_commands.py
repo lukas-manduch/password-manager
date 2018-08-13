@@ -27,6 +27,8 @@ class SearchInteractionCommand(interaction.InteractionCommand):
         return {constants.COMMAND: constants.COMMAND_SEARCH,
                 constants.COMMAND_SEARCH_VALUE: term}
 
+interaction.COMMAND_MAP["SearchInteractionCommand"] = SearchInteractionCommand
+
 ###########################################################################
 
 
@@ -82,6 +84,8 @@ class AddInteractionCommand(interaction.InteractionCommand):
         return (parts[0], parts[1])
 
 
+interaction.COMMAND_MAP["AddInteractionCommand"] = AddInteractionCommand
+
 ###########################################################################
 
 
@@ -102,6 +106,7 @@ class DeleteInteractionCommand(interaction.InteractionCommand):
         return {constants.COMMAND: constants.COMMAND_DELETE,
                 constants.COMMAND_DELETE_INDICES: indices}
 
+interaction.COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
 
 class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
@@ -118,3 +123,5 @@ class ViewInteractionCommand(interaction.InteractionCommand):
             ret[constants.COMMAND_SHOW_INDICES] = indices
 
         return ret
+
+interaction.COMMAND_MAP["ViewInteractionCommand"] = ViewInteractionCommand
