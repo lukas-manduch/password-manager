@@ -35,7 +35,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
     then some text.  Keyword will be on one line and text must be finished
     by two empty lines
     """
-    COMMANDS = ["add"]
+    COMMANDS = ["add", "new"]
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term, value = "", ""
         # Get key
