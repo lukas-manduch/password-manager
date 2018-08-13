@@ -15,6 +15,7 @@ if ($lint -eq $false -or $LASTEXITCODE -ne 0)
 
 Get-ChildItem "src" -File -Filter "*.py" |
 ForEach-Object {
+    write-output($_.FullName)
     & $interpreter "-m", "pylint", $_.FullName 2>&1 | % { "$_" }
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
