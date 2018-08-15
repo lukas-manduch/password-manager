@@ -12,20 +12,25 @@ INIT_LIST = [
     helpers.create_password_file,
     helpers.get_password,
     helpers.load_frontend,
-    # Load backeng
+    helpers.load_backend,
     helpers.check_password,
     helpers.main,
+    helpers.clear_screen
 ]
 
 if __name__ == "__main__":
     settings: Dict[str, Any] = {}
     FRONTEND = helpers.Module(None)
     BACKEND = helpers.Module(None)
-    for func in INIT_LIST:
-        print(str(func))
-        if not func(settings, FRONTEND, BACKEND):
-            print("Error")
-            exit(1)
+    try:
+        for func in INIT_LIST:
+            print(str(func))
+            if not func(settings, FRONTEND, BACKEND):
+                print("Error")
+                exit(1)
+    except KeyboardInterrupt:
+        print("")
+        print("Interrupted")
     print("Ok")
     print(settings)
     exit(0)

@@ -1,10 +1,12 @@
 """This module contains definitions of commands, which can be used by repl
 defined in interaction
 """
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Type
 
 import constants
 import interaction
+
+COMMAND_MAP: Dict[str, Type[Any]] = dict()
 
 
 class SearchInteractionCommand(interaction.InteractionCommand):
@@ -27,7 +29,7 @@ class SearchInteractionCommand(interaction.InteractionCommand):
         return {constants.COMMAND: constants.COMMAND_SEARCH,
                 constants.COMMAND_SEARCH_VALUE: term}
 
-interaction.COMMAND_MAP["SearchInteractionCommand"] = SearchInteractionCommand
+COMMAND_MAP["SearchInteractionCommand"] = SearchInteractionCommand
 
 ###########################################################################
 
@@ -84,7 +86,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
         return (parts[0], parts[1])
 
 
-interaction.COMMAND_MAP["AddInteractionCommand"] = AddInteractionCommand
+COMMAND_MAP["AddInteractionCommand"] = AddInteractionCommand
 
 ###########################################################################
 
@@ -106,7 +108,7 @@ class DeleteInteractionCommand(interaction.InteractionCommand):
         return {constants.COMMAND: constants.COMMAND_DELETE,
                 constants.COMMAND_DELETE_INDICES: indices}
 
-interaction.COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
+COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
 
 class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
@@ -124,4 +126,4 @@ class ViewInteractionCommand(interaction.InteractionCommand):
 
         return ret
 
-interaction.COMMAND_MAP["ViewInteractionCommand"] = ViewInteractionCommand
+COMMAND_MAP["ViewInteractionCommand"] = ViewInteractionCommand

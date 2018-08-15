@@ -47,7 +47,7 @@ class PasswordFileManager:
         self.contents = parse_contents(contents, self.cipher)
         self.position = 0
         self.version = 0
-        self.success = 0 # Ratio of decrypted/all (should be 1)
+        self.success = 1 # Ratio of decrypted/all (should be 1)
         if contents:
             self.success = len(self.contents) // len(contents)
 
