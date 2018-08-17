@@ -156,6 +156,34 @@ class SessionControllerTestCase(unittest.TestCase):
         self.assertEqual(ret[constants.RESPONSE_ERROR],
                          constants.RESPONSE_ERROR_OUT_OF_RANGE)
 
+    def test_stats_valid(self):
+        rate = 0.72
+        self.mock.success = rate
+        session_cont = session.SessionController(self.settings)
+        expected = session.SessionController.ok_to_dict(
+            constants.COMMAND_STATS,
+            {
+                constants.RESPONSE_STATS_STATUS: constants.RESPONSE_OK,
+                constants.RESPONSE_STATS_DECRYPTION_RATE: rate
+
+            }
+        )
+        arg = {constants.COMMAND: constants.COMMAND_STATS}
+
+        ret = session_cont.process(arg)
+        self.assertEqual(expected, ret)
+
+    def test_ok_to_dict(self):
+        command_name = "abcd"
+        ret = session.SessionController.ok_to_dict(command_name)
+        expected = {constants.RESPONSE: constants.RESPONSE_OK,
+                    constants.COMMAND: command_name}
+        self.assertEqual(ret, expected)
+        value = [1, 2, 2]
+        ret = session.SessionController.ok_to_dict(command_name, value)
+        expected = {constants.RESPONSE: constants.RESPONSE_OK,
+                    constants.COMMAND: command_name,
+                    constants.RESPONSE_VALUES: value}
 
 if __name__ == '__main__':
     unittest.main()

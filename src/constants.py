@@ -1,10 +1,11 @@
-"""Module contains strings and definitions for password manager"""
+"""Module contains strings,definitions and default settings for password
+manager"""
+
 SPLITTER = "|"
 SPLITTER_NEWLINE = "|\n"
 MAX_RESULTS = 10
 PROMPT_SYMBOL = "> "
 PROGRAM_NAME = "passman"
-
 ###############
 
 
@@ -33,6 +34,9 @@ COMMAND_DELETE_INDICES = "DELETE_INDICES"
 COMMAND_DELETE_KEYWORD = "indices"
 COMMAND_DELETE_KEYWORD_HELP = "Specify which indices from search should be deleted"
 
+# Stats
+COMMAND_STATS = "stats"
+
 
 # Response
 RESPONSE = "status"
@@ -47,6 +51,11 @@ RESPONSE_ERROR_OUT_OF_RANGE = "Given index is out of range"
 RESPONSE_ERROR_REQUIRES_SEARCH = "Given command requires search before executing"
 RESPONSE_ERROR_UNKNOWN_ERROR = "Unknown error occured, command was not successful"
 RESPONSE_ERROR_INVALID_ARGUMENT = "Invalid argument passed to command"
+
+# Values in dict returned by stats command
+RESPONSE_STATS_DECRYPTION_RATE = "decryption_rate" # <0,1>
+RESPONSE_STATS_STATUS = "status" # ok or error
+##########################################
 
 #################################################################################
 

@@ -2,6 +2,14 @@
 dictionaries and maybe performs some actions over parts in core module
 (like adding or removing entries).  Result returns also as
 dictionary
+
+Calls:
+ Add
+ Search
+ View
+ Show
+ Delete
+ Stats
 """
 
 from typing import Any, List, Dict, Optional
@@ -28,7 +36,7 @@ class SessionController:
         """Reinitialize self, try to read file create index and so on.  Set
         value self.ok to either True or False and also return error message"""
         self.state = True
-        ret = "Ok"
+        ret = ""
         try:
             if self.pass_file is None:
                 self.pass_file = PasswordFileManager(self.file_path, self.password)
@@ -71,6 +79,9 @@ class SessionController:
                 ret = self.delete(indices)
             except TypeError:
                 ret = self.error_to_dict(constants.RESPONSE_ERROR_INVALID_ARGUMENT)
+        # STATS
+        elif command is constants.COMMAND_STATS:
+            ret = self.stats()
 
         return ret
 
@@ -95,7 +106,6 @@ class SessionController:
                                     constants.SECRET_VALUE: x[1]},
                          value_list)
         return self.ok_to_dict(constants.COMMAND_SHOW, list(value_dict))
-
 
     def search(self, search_pattern: str) -> dict:
         """Method representing command search. Usually called only from
@@ -148,7 +158,13 @@ class SessionController:
     def stats(self):
         """Command for getting stats for this session, like number of
         entries, success rate and so on"""
-        pass
+        ret: Dict[str, Any] = dict()
+        ret[constants.RESPONSE_STATS_STATUS] = constants.RESPONSE_ERROR
+        ret[constants.RESPONSE_STATS_DECRYPTION_RATE] = 0
+        if self.state:
+            ret[constants.RESPONSE_STATS_STATUS] = constants.RESPONSE_OK
+            ret[constants.RESPONSE_STATS_DECRYPTION_RATE] = self.pass_file.success
+        return self.ok_to_dict(constants.COMMAND_STATS, ret)
 
     @staticmethod
     def error_to_dict(error_string: str) -> dict:
