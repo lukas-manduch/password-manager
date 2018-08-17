@@ -24,22 +24,18 @@ class SessionController:
         self.store: Optional[KeyValueStore] = None
         self.search_indices: List[int] = list() # Found indices
 
-    def update_status(self) -> dict:
+    def update_status(self) -> str:
         """Reinitialize self, try to read file create index and so on.  Set
-        value self.ok to either True or False and also return dictionary in
-        format used by process method
-        """
+        value self.ok to either True or False and also return error message"""
         self.state = True
-        ret: Dict[str, str] = dict()
+        ret = "Ok"
         try:
             if self.pass_file is None:
                 self.pass_file = PasswordFileManager(self.file_path, self.password)
-
             self.store = KeyValueStore(self.pass_file)
-            ret = {constants.RESPONSE: constants.RESPONSE_OK}
         except OSError as error:
             self.state = False
-            ret = self.error_to_dict(str(error))
+            ret = str(error)
         return ret
 
     def process(self, data: dict) -> dict:
@@ -48,7 +44,7 @@ class SessionController:
             self.search_indices.clear() # If there was some search now is invalid
             result = self.update_status()
             if not self.state:
-                return result # Something went wrong
+                return self.error_to_dict(result)
 
         command = data.get(constants.COMMAND, "")
         ret = self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_COMMAND)
@@ -98,8 +94,8 @@ class SessionController:
         value_dict = map(lambda x: {constants.SECRET_KEY: x[0],
                                     constants.SECRET_VALUE: x[1]},
                          value_list)
-        return {constants.RESPONSE: constants.RESPONSE_OK,
-                constants.RESPONSE_VALUES: list(value_dict)}
+        return self.ok_to_dict(constants.COMMAND_SHOW, list(value_dict))
+
 
     def search(self, search_pattern: str) -> dict:
         """Method representing command search. Usually called only from
@@ -108,7 +104,9 @@ class SessionController:
         assert self.pass_file is not None
 
         self.search_indices = self.store.find_key(search_pattern)
-        return self.show()
+        ret_dict = self.show()
+        ret_dict[constants.COMMAND] = constants.COMMAND_SEARCH
+        return ret_dict
 
     def add(self, key: str, value: str) -> dict:
         """Append key and value to password file. Called from process"""
@@ -122,7 +120,7 @@ class SessionController:
             self.pass_file.save_contents()
         except OSError as error:
             return self.error_to_dict(str(error))
-        return {constants.RESPONSE: constants.RESPONSE_OK}
+        return self.ok_to_dict(constants.COMMAND_ADD)
 
     def delete(self, indices: List[int]) -> Dict[str, str]:
         """Delete entries specified in indices from file.  Indices
@@ -145,7 +143,12 @@ class SessionController:
         except OSError:
             return self.error_to_dict(constants.RESPONSE_ERROR_UNKNOWN_ERROR)
 
-        return {constants.RESPONSE: constants.RESPONSE_OK}
+        return self.ok_to_dict(constants.COMMAND_DELETE)
+
+    def stats(self):
+        """Command for getting stats for this session, like number of
+        entries, success rate and so on"""
+        pass
 
     @staticmethod
     def error_to_dict(error_string: str) -> dict:
@@ -153,3 +156,12 @@ class SessionController:
         return {constants.RESPONSE: constants.RESPONSE_ERROR,
                 constants.RESPONSE_ERROR
                 :str(error_string)}
+
+    @staticmethod
+    def ok_to_dict(original_command: str, value=None) -> Dict[str, Any]:
+        """Return ok response in correct format"""
+        ret = {constants.RESPONSE: constants.RESPONSE_OK,
+               constants.COMMAND: str(original_command)}
+        if value:
+            ret[constants.RESPONSE_VALUES] = value
+        return ret
