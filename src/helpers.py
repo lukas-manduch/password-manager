@@ -28,6 +28,12 @@ class Module:
         """True if module is already set"""
         return self.module is not None
 
+    def process(self, *args):
+        """Call module process"""
+        if self.module:
+            return self.module.process(*args)
+        return None
+
 #### INIT FUNCTIONS ####
 
 def parse_arguments(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
@@ -119,6 +125,15 @@ def get_password(settings: Dict[str, Any], frontend: Module, backend: Module) ->
 def check_password(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     """Check if password is correct, and if not quit.  If settings has
     IGNORE_ERRORS set, continue anyway"""
+    if not frontend or not backend:
+        return False
+    try:
+        ret = backend.process({constants.COMMAND: constants.COMMAND_STATS})
+        values = ret[constants.RESPONSE_VALUES]
+        if values[constants.RESPONSE_STATS_DECRYPTION_RATE] is not 1:
+            return False
+    except (KeyError, ValueError):
+        return False
     return True
 
 def main(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:

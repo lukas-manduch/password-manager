@@ -33,8 +33,7 @@ class EncoderDecoderTestCase(unittest.TestCase):
         self.assertEqual(expect, core.parse_contents(hvalues, de_cipher))
 
     def test_serialize_deserialize(self):
-        from pprint import pprint
-        password = "asd"
+        password = "abcd1234"
         contents = [("key1", "val1"), ("key2", "val2")]
         cipher1 = core.Cipher(password)
         cipher2 = core.Cipher(password)
@@ -154,7 +153,6 @@ class EncryptionDecryptionTestCase(unittest.TestCase):
         cipher2 = core.Cipher('pass')
         plaintext = b'Hello, how are you? This is pretty \n long literal'
         encrypted = cipher1.encrypt(plaintext)
-        print(encrypted)
         self.assertNotEqual(plaintext, encrypted)
         decrypted = cipher2.decrypt(encrypted)
         self.assertEqual(plaintext, decrypted)

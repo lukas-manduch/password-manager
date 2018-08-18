@@ -42,17 +42,15 @@ class PasswordFileManager:
     def __init__(self, file_path: str, password: str) -> None:
         self.file_path = file_path
         # Read contents to memory
-        import pdb
-        #pdb.set_trace()
         contents = list(self.read_contents())
         self.cipher = Cipher(password)
         self.contents = parse_contents(contents, self.cipher)
         self.position = 0
         self.version = 0
-        # Ratio of decrypted/all (should be 1).  1 is also default 
+        # Ratio of decrypted/all (should be 1).  1 is also default
         # for empty -> decrypting empty file should always succeed
-        self.success = 1  
-                          
+        self.success = 1
+
         if contents:
             self.success = len(self.contents) // len(contents)
 
