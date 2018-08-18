@@ -145,7 +145,6 @@ class Cipher:
         from cryptography.fernet import Fernet
         hashed = hashlib.sha256(str(password).encode('utf-8'))
         key = base64.urlsafe_b64encode(hashed.digest())
-        #print(key)
         self.fernet = Fernet(key)
 
     def encrypt(self, secret: bytes) -> bytes:
