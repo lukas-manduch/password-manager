@@ -32,13 +32,18 @@ class EncoderDecoderTestCase(unittest.TestCase):
         de_cipher = core.Cipher("some long password")
         self.assertEqual(expect, core.parse_contents(hvalues, de_cipher))
 
-    @unittest.skip("Serialize contents must be tested differently")
-    def test_serialize_contents(self):
-        pass
-        #expect = "312032206c206161|\n3520342048656c6c6f2079657469"
-        #inp = [('l', 'aa'), ('Hello', 'yeti')]
-        #self.assertEqual(expect, core.serialize_contents(inp))
+    def test_serialize_deserialize(self):
+        from pprint import pprint
+        password = "asd"
+        contents = [("key1", "val1"), ("key2", "val2")]
+        cipher1 = core.Cipher(password)
+        cipher2 = core.Cipher(password)
 
+        ser = core.serialize_contents(contents, cipher1)
+
+        entries = ser.split('|\n')
+        clear = core.parse_contents(entries, cipher2)
+        self.assertEqual(clear, contents)
 
 
 class PasswordFileManagerIOTestCase(unittest.TestCase):
@@ -149,6 +154,7 @@ class EncryptionDecryptionTestCase(unittest.TestCase):
         cipher2 = core.Cipher('pass')
         plaintext = b'Hello, how are you? This is pretty \n long literal'
         encrypted = cipher1.encrypt(plaintext)
+        print(encrypted)
         self.assertNotEqual(plaintext, encrypted)
         decrypted = cipher2.decrypt(encrypted)
         self.assertEqual(plaintext, decrypted)

@@ -161,7 +161,7 @@ class SessionController:
         ret: Dict[str, Any] = dict()
         ret[constants.RESPONSE_STATS_STATUS] = constants.RESPONSE_ERROR
         ret[constants.RESPONSE_STATS_DECRYPTION_RATE] = 0
-        if self.state:
+        if self.state: # This is always true when called from process
             ret[constants.RESPONSE_STATS_STATUS] = constants.RESPONSE_OK
             ret[constants.RESPONSE_STATS_DECRYPTION_RATE] = self.pass_file.success
         return self.ok_to_dict(constants.COMMAND_STATS, ret)
