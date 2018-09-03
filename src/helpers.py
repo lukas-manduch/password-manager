@@ -34,7 +34,8 @@ class Module:
             return self.module.process(*args)
         return None
 
-#### INIT FUNCTIONS ####
+################################################################################
+################################ INIT FUNCTIONS ################################
 
 def parse_arguments(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     """Parse program arguments and set them in SETTINGS"""
@@ -138,10 +139,10 @@ def check_password(settings: Dict[str, Any], frontend: Module, backend: Module) 
 
 def main(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     """If in interactive mode, clear screen so no passwords are left on display"""
-    from pprint import pprint
     while True:
         command = frontend.module.repl()
-        pprint(backend.module.process(command))
+        ret = backend.module.process(command)
+        frontend.module.process(ret)
     return True
 
 def clear_screen(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:

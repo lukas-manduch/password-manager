@@ -15,6 +15,7 @@ class SearchInteractionCommand(interaction.InteractionCommand):
     search mode and user will know that he is in search mode
     """
     COMMANDS = ['search', 'find']
+    COMMAND_NAME = constants.COMMAND_SEARCH
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term = additional_input.get(constants.SEARCH_INTERACTION_PROMPT, "")
@@ -40,6 +41,8 @@ class AddInteractionCommand(interaction.InteractionCommand):
     by two empty lines
     """
     COMMANDS = ["add", "new"]
+    COMMAND_NAME = constants.COMMAND_ADD
+
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term, value = "", ""
         # Get key
@@ -94,6 +97,8 @@ COMMAND_MAP["AddInteractionCommand"] = AddInteractionCommand
 class DeleteInteractionCommand(interaction.InteractionCommand):
     """Delete command, deletes previous search results based on indices given"""
     COMMANDS = ['delete', 'remove']
+    COMMAND_NAME = constants.COMMAND_DELETE
+
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         """Take as input indices which should be deleted.  Indices are for
         search list(something for which user already searched)"""
@@ -113,6 +118,7 @@ COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
 class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
     COMMANDS = ['view', 'show']
+    COMMAND_NAME = constants.COMMAND_SHOW
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         """Take input and find indices in it.  If there are not any,

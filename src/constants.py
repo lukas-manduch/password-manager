@@ -42,6 +42,7 @@ COMMAND_STATS = "stats"
 RESPONSE = "status"
 RESPONSE_ERROR = "error"
 RESPONSE_OK = "ok"
+RESPONSE_MISSING = "missing"
 
 RESPONSE_VALUES = "values"
 

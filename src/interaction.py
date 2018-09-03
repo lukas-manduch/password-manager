@@ -1,16 +1,25 @@
 """Module containing functions for user interaction with password
 manager - parsing input displaying messages etc.
 """
+
+# Disable unused argument warning
+# pylint: disable=W0613
+# Disable todo warning
+# pylint: disable=W0511
+# Disable no self use warning
+# pylint: disable=R0201
+
 import abc
+from contextlib import suppress
 import os
-from typing import Any, Dict, List, Tuple, Type
+from pprint import pprint
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import constants
 
 COMMAND_MAP: Dict[str, Type[Any]] = dict()
 
-# Disable unused argument warning
-# pylint: disable=W0613
+
 class InputNeeded(Exception):
     """This class can be thrown by interaction commands.  Class forces repl
     loop to show prompt with KEY_NAME and shows help as KEY_DESCRIPTION.  Next
@@ -32,6 +41,7 @@ class InteractionCommand(abc.ABC):
     what it should be :)
     """
     COMMANDS: List[str] = []  # list of keywords matching this command
+    COMMAND_NAME: Optional[str] = None  # Unique identifier for this command
 
     def __init__(self):
         pass
@@ -47,6 +57,28 @@ class InteractionCommand(abc.ABC):
         Throws InputNeeded if command is incomplete
 
         """
+        pass
+
+    def call(self, *args, **kwargs) -> bool:
+        """Method called to process response from backend. Command is identified by
+        command field in response, and values from response are passed as keyword
+        arugments to this method"""
+        for key, value in kwargs:
+            print('--- ', end='')
+            print(str(key), end='')
+            print(' ---',)
+            pprint(str(value))
+
+        with suppress(TypeError):
+            for item in iter(args):
+                print("  " + str(item))
+        return True
+
+    @classmethod
+    def create_empty(cls):
+        """Return new command.  Protection against passing already instantiated
+        command"""
+        return cls()
 
     @staticmethod
     def help() -> str:
@@ -84,8 +116,29 @@ class HelpInteractionCommand(InteractionCommand):
 COMMAND_MAP["HelpInteractionCommand"] = HelpInteractionCommand
 
 ###########################################################################
+
+class HelpMessageCommand(InteractionCommand):
+    """This class is created by interactive session, when some error occurs and
+    just prints error message"""
+
+    def __init__(self, error_message="invalid request"):
+        super().__init__()
+        self.message: str = error_message
+
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
+        raise NotImplementedError()
+
+    def call(self, *args, **kwargs) -> bool:
+        print("Error")
+        print(str(self.message))
+        print("----------------------")
+        super().call(*args, **kwargs)
+        return True
+# This command is not in COMMAND_MAP
+
+###########################################################################
 # Rest of theese commands is implemented in interaction_commands.py,
-# theese are only ones necessary for correct function of repl
+# theese are only ones necessary for correct function of repl and process
 ###########################################################################
 
 
@@ -100,14 +153,34 @@ class InteractiveSession:
     """
 
     def __init__(self, function_list):
-        self.command_list = function_list
+        self.command_list: List[InteractionCommand] = self.instantiate_commands(function_list)
         self.keyword = ""
         self.show_prompt = True
         self.show_help = True
+        # TODO: Check for command name uniqueness
+        # TODO: Generate help command
 
     def process(self, data: dict) -> dict:
-        """Main communication method for frontend"""
-        pass
+        """Communication method for frontend.  Input and output is in json form"""
+        response = data.get(constants.RESPONSE, constants.RESPONSE_MISSING)
+        command = data.get(constants.COMMAND, constants.RESPONSE_MISSING)
+        values = data.get(constants.RESPONSE_VALUES, {})
+        #error = data.get(constants.RESPONSE_ERROR, "")
+
+        if response is constants.RESPONSE_OK and command:
+            command_instance = self.get_command(command)
+            # Pass dict/list/int/str correctly
+            if isinstance(values, dict):
+                command_instance.call(**values)
+            else:
+                try:
+                    command_instance.call(*values)
+                except TypeError:
+                    command_instance.call(values)
+        else:
+            print("Error")
+        return {} # TODO
+
 
     def repl(self) -> dict:
         """GET command from user input and return it as dict. On
@@ -141,9 +214,12 @@ class InteractiveSession:
                     print(inpn.key_description)
 
     def find_command(self, entry: str) -> InteractionCommand:
-        """Returns one command which is identified by entry. If some error
-        happens fucntion should create its own help command which will only
-        show help or error message.
+        """Try to find one command whose COMMANDS, are most similar to
+        argument.
+
+        Returns command identified by ENTRY.  If some error happens (more
+        commands with same length match, or no match at all), function will
+        create its own help command which will only show error message.
         """
         matches = map(lambda x: get_best_match(entry, x.COMMANDS),
                       self.command_list)
@@ -158,13 +234,20 @@ class InteractiveSession:
         # Only one entry matches
         return self._find_command_by_keyword(res[0][1], self.command_list)
 
+    def get_command(self, name: str) -> InteractionCommand:
+        """Find command indentified by NAME in COMMAND_NAME.  If command
+        doesn't exist, create error command and return it"""
+        ret = list(filter(lambda x: x.COMMAND_NAME == name, self.command_list))
+        if len(ret) == 1:
+            return ret[0]
+        return HelpMessageCommand("Critical error command not found")
+
     def get_input(self):
         """Function for getting user input"""
         prompt = ""
         if self.show_prompt:
             prompt = self.keyword + constants.PROMPT_SYMBOL
         return input(prompt).strip()
-
 
     @staticmethod
     def quit():
@@ -174,9 +257,10 @@ class InteractiveSession:
     @staticmethod
     def _find_command_by_keyword(keyword: str,
                                  command_list: list) -> InteractionCommand:
+        """"""
         ret = filter(lambda x: True if keyword in x.COMMANDS else False,
                      command_list)
-        return next(ret)()
+        return next(ret)
 
     @staticmethod
     def remove_command_part(entry, command) -> str:
@@ -185,6 +269,14 @@ class InteractiveSession:
         """
         return entry[get_best_match(entry, command.COMMANDS)[0]:]
 
+    @staticmethod
+    def instantiate_commands(command_list) -> List[InteractionCommand]:
+        """Commands are expected to be passed as class names.  This method
+        converts them to actual instances"""
+        new_list = list()
+        for command in command_list:
+            new_list.append(command.create_empty())
+        return new_list
 ###########################################################################
 
 ###########################################
