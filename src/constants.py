@@ -94,8 +94,23 @@ ADD_INTERACTION_KEY_MISSING = "Command - Add\
 \nPlease enter key which will represent this entry.\
 \nThen enter value. Value must end with two empty lines"
 
-HELP_AMBIGUOUS = "Sorry command is ambiguous:\n"
+HELP_INTERACTION = """Here you can see list of available commands.  Command
+can be represented by many synonyms and to call it you can usually type only
+first few letters.  If you want to cancel command press Ctrl+C, second time it
+closes whole application.  Commands sometimes have also faster usage when you
+can type arguments in one line (like sea google for search for google)."""
+HELP_AMBIGUOUS = "Sorry, command is ambiguous:"
 HELP_SEARCH_MANY = "Hint: To print other values, use show command"
+HELP_SHOW_COMMAND = """After search, you can show full entry key and value.
+Command takes as arguments indices returned by search"""
+HELP_SEARCH_COMMAND = """Search in stored entries by key and return top
+matches.  Indices next to shown entries are important for some other commands
+like delete, which takes as argument theses indices"""
+HELP_ADD_COMMAND = """Add new entry.  Entry is represented by key and value.
+Key should be one word representing whole entry (for example url of webpage).
+Value can be more than one line long.  After entering value, enter two newlines
+in row which terminates command."""
+HELP_DELETE_COMMAND = """Delete specified entries."""
 
 ### PARAMETERS ###
 

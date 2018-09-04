@@ -13,6 +13,7 @@ import abc
 from contextlib import suppress
 import os
 from pprint import pprint
+from textwrap import TextWrapper
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import constants
@@ -42,6 +43,7 @@ class InteractionCommand(abc.ABC):
     """
     COMMANDS: List[str] = []  # list of keywords matching this command
     COMMAND_NAME: Optional[str] = None  # Unique identifier for this command
+    HELP: Optional[str] = None  # Help message for command
 
     def __init__(self):
         pass
@@ -98,7 +100,7 @@ class HelpAmbiguousInteractionCommand(InteractionCommand):
         self.commands = command_list
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
-        description = constants.HELP_AMBIGUOUS + "{}".format(self.commands)
+        description = constants.HELP_AMBIGUOUS + "\n" + "\n".join(self.commands)
         raise InputNeeded(key_description=description)
 
 ###########################################################################
@@ -110,10 +112,12 @@ class HelpInteractionCommand(InteractionCommand):
     """
     COMMANDS = ['help', '?']
 
-    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
-        raise InputNeeded(key_description="Some help?")
+    def __init__(self, help_str="?"):
+        super().__init__()
+        self.help = help_str
 
-COMMAND_MAP["HelpInteractionCommand"] = HelpInteractionCommand
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
+        raise InputNeeded(key_description=self.help)
 
 ###########################################################################
 
@@ -154,6 +158,8 @@ class InteractiveSession:
 
     def __init__(self, function_list):
         self.command_list: List[InteractionCommand] = self.instantiate_commands(function_list)
+        help_command = help_from_commands(self.command_list)
+        self.command_list.append(help_command)
         self.keyword = ""
         self.show_prompt = True
         self.show_help = True
@@ -277,6 +283,12 @@ class InteractiveSession:
         for command in command_list:
             new_list.append(command.create_empty())
         return new_list
+
+    @staticmethod
+    def error_from_dict(dict_response: Dict[str, Any]) -> HelpMessageCommand:
+        """When response from backend is error, create Command which prints
+        error message"""
+        return HelpMessageCommand()
 ###########################################################################
 
 ###########################################
@@ -332,3 +344,20 @@ def parse_numbers(input_string: str) -> List[int]:
     if building_number:
         return_digits.append(int(current_number))
     return return_digits
+
+# Functions for formatting help
+
+def help_from_commands(command_list: List[InteractionCommand]) -> str:
+    ret = ""
+    indent = ' '*3
+    wrapper = TextWrapper(subsequent_indent=indent, initial_indent=indent)
+    ret = "\n".join(wrapper.wrap(constants.HELP_INTERACTION))
+    ret += "\n"*2
+    for command in command_list:
+        names = ", ".join(command.COMMANDS)
+        help_message = command.HELP or constants.RESPONSE_MISSING
+        help_message = "\n".join(wrapper.wrap(help_message))
+        ret += names + "\n" + help_message + "\n"*2
+    return HelpInteractionCommand(ret)
+
+

@@ -21,11 +21,12 @@ class SearchInteractionCommand(interaction.InteractionCommand):
     """
     COMMANDS = ['search', 'find']
     COMMAND_NAME = constants.COMMAND_SEARCH
+    HELP = constants.HELP_SEARCH_COMMAND
 
     def __init__(self, verbose=True):
         super().__init__()
         self.verbose = verbose
-        indent = "  "
+        indent = ' '*2
         self.wrapper = TextWrapper(subsequent_indent=indent,
                                    max_lines=2, initial_indent=indent)
 
@@ -75,6 +76,7 @@ class AddInteractionCommand(interaction.InteractionCommand):
     """
     COMMANDS = ["add", "new"]
     COMMAND_NAME = constants.COMMAND_ADD
+    HELP = constants.HELP_ADD_COMMAND
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term, value = "", ""
@@ -163,6 +165,7 @@ class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
     COMMANDS = ['view', 'show']
     COMMAND_NAME = constants.COMMAND_SHOW
+    HELP = constants.HELP_SHOW_COMMAND
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         """Take input and find indices in it.  If there are not any,

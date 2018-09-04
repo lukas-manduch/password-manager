@@ -16,14 +16,6 @@ class Module:
     def __init__(self, module: Any) -> None:
         self.module = module
 
-    def message(self, content: str):
-        """Send display request to module, return True if module returns ok"""
-        pass
-
-    def test(self):
-        """Test"""
-        pass
-
     def is_loaded(self):
         """True if module is already set"""
         return self.module is not None
@@ -33,6 +25,7 @@ class Module:
         if self.module:
             return self.module.process(*args)
         return None
+
 
 ################################################################################
 ################################ INIT FUNCTIONS ################################
