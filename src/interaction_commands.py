@@ -1,6 +1,11 @@
 """This module contains definitions of commands, which can be used by repl
 defined in interaction
 """
+
+# Disable no self use warning
+# pylint: disable=R0201
+
+from textwrap import TextWrapper
 from typing import Any, Dict, List, Tuple, Type
 
 import constants
@@ -17,6 +22,13 @@ class SearchInteractionCommand(interaction.InteractionCommand):
     COMMANDS = ['search', 'find']
     COMMAND_NAME = constants.COMMAND_SEARCH
 
+    def __init__(self, verbose=True):
+        super().__init__()
+        self.verbose = verbose
+        indent = "  "
+        self.wrapper = TextWrapper(subsequent_indent=indent,
+                                   max_lines=2, initial_indent=indent)
+
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         term = additional_input.get(constants.SEARCH_INTERACTION_PROMPT, "")
 
@@ -29,6 +41,27 @@ class SearchInteractionCommand(interaction.InteractionCommand):
 
         return {constants.COMMAND: constants.COMMAND_SEARCH,
                 constants.COMMAND_SEARCH_VALUE: term}
+
+    def call(self, *args, **kwargs) -> bool:
+        """Format and print key,value pairs in args
+
+        Values are printed only for first 2 matches.  Rest should be obtained
+        by show command"""
+
+        index = 0
+        for index, entry in enumerate(args):
+            print(str(index) + ". ", end="")
+            print(entry[constants.SECRET_KEY])
+            if index < 2:
+                print("--------------------")
+                for i in self.wrapper.wrap(entry[constants.SECRET_VALUE]):
+                    print(i)
+                print("--------------------")
+        if index >= 2 and self.verbose:
+            print()
+            print(constants.HELP_SEARCH_MANY)
+        return True
+
 
 COMMAND_MAP["SearchInteractionCommand"] = SearchInteractionCommand
 

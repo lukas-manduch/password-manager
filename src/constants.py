@@ -95,6 +95,7 @@ ADD_INTERACTION_KEY_MISSING = "Command - Add\
 \nThen enter value. Value must end with two empty lines"
 
 HELP_AMBIGUOUS = "Sorry command is ambiguous:\n"
+HELP_SEARCH_MANY = "Hint: To print other values, use show command"
 
 ### PARAMETERS ###
 
