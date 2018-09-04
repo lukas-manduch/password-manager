@@ -95,6 +95,11 @@ class AddInteractionCommand(interaction.InteractionCommand):
                 constants.COMMAND_ADD_KEY: term,
                 constants.COMMAND_ADD_VALUE: value}
 
+    def call(self, *args, **kwargs) -> bool:
+        """Just print ok / do nothing.
+
+        Call is executed on response == ok so there is nothing to do """
+        return True
 
     @staticmethod
     def value_to_list(additional_input: dict) -> list:
@@ -146,6 +151,12 @@ class DeleteInteractionCommand(interaction.InteractionCommand):
         return {constants.COMMAND: constants.COMMAND_DELETE,
                 constants.COMMAND_DELETE_INDICES: indices}
 
+    def call(self, *args, **kwargs) -> bool:
+        """Just print ok / do nothing.
+
+        Call is executed on response == ok so there is nothing to do"""
+        return True
+
 COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
 
 class ViewInteractionCommand(interaction.InteractionCommand):
@@ -164,5 +175,20 @@ class ViewInteractionCommand(interaction.InteractionCommand):
             ret[constants.COMMAND_SHOW_INDICES] = indices
 
         return ret
+
+    def call(self, *args, **kwargs) -> bool:
+        """Format and print key,value pairs in args
+
+        Values are printed only for first 2 matches.  Rest should be obtained
+        by show command"""
+
+        for entry in args:
+            key = entry.get(constants.SECRET_KEY, constants.RESPONSE_MISSING)
+            value = entry.get(constants.SECRET_VALUE, constants.RESPONSE_MISSING)
+            print("--- KEY ---")
+            print(key)
+            print("=== VALUE ===")
+            print(value)
+        return True
 
 COMMAND_MAP["ViewInteractionCommand"] = ViewInteractionCommand
