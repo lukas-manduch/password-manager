@@ -7,3 +7,10 @@
 
 This password manager is currently work in progress, but when
 finished, it will be greatest password manager ever!
+
+## Goals
+- Offline password manager
+- Passwords stored in text(not binary) file easily syncable by Dropbox etc.
+- Easy export/import
+- Fast command line interface
+- Simple to embed in other application (like different GUI)

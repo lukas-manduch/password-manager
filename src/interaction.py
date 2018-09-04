@@ -347,7 +347,9 @@ def parse_numbers(input_string: str) -> List[int]:
 
 # Functions for formatting help
 
-def help_from_commands(command_list: List[InteractionCommand]) -> str:
+def help_from_commands(command_list: List[InteractionCommand]) -> HelpInteractionCommand:
+    """Given list of loaded commands get their info and create one complete
+    help message"""
     ret = ""
     indent = ' '*3
     wrapper = TextWrapper(subsequent_indent=indent, initial_indent=indent)
@@ -359,5 +361,3 @@ def help_from_commands(command_list: List[InteractionCommand]) -> str:
         help_message = "\n".join(wrapper.wrap(help_message))
         ret += names + "\n" + help_message + "\n"*2
     return HelpInteractionCommand(ret)
-
-
