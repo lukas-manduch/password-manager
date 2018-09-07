@@ -5,6 +5,7 @@ import tempfile
 
 import unittest
 import unittest.mock
+from unittest.mock import patch
 
 import constants
 import helpers
@@ -13,7 +14,7 @@ import helpers
 # Disable missing docstring warning
 # pylint: disable=C0111
 
-class InitTestCase(unittest.TestCase):
+class CreateFileTestCase(unittest.TestCase):
     def test_create_password_file(self):
         mock = unittest.mock.MagicMock()
         filename = "some file.txt"
@@ -50,3 +51,15 @@ class InitTestCase(unittest.TestCase):
         self.assertTrue(helpers.create_password_file(settings, mock, mock))
         with open(tmp_file.name, 'rb') as tmpf:
             self.assertEqual(content, tmpf.read())
+
+    @patch('helpers.os.access')
+    def test_no_permission(self, mock):
+        mock.return_value = True
+        module_mock = unittest.mock.MagicMock()
+        with tempfile.TemporaryFile() as new_file:
+            settings = {constants.SETTINGS_FILE_PATH: new_file.name}
+            ret1 = helpers.create_password_file(settings, module_mock, module_mock)
+            mock.return_value = False
+            ret2 = helpers.create_password_file(settings, module_mock, module_mock)
+            self.assertEqual(ret1, True)
+            self.assertEqual(ret2, False)

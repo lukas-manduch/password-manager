@@ -29,6 +29,9 @@ class Module:
 
 ################################################################################
 ################################ INIT FUNCTIONS ################################
+################################################################################
+
+# If one of these functions returns False, whole app stops with error.  In future, they will have possibilty to
 
 def parse_arguments(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     """Parse program arguments and set them in SETTINGS"""
@@ -77,7 +80,7 @@ def load_frontend(settings: Dict[str, Any], frontend: Module, backend: Module) -
     return True
 
 def load_backend(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
-    """Just load backend. If password is not already in settings, return false."""
+    """Just load backend. If password is not already in settings, return False."""
     assert constants.SETTINGS_FILE_PATH in settings
     assert constants.SETTINGS_PASSWORD in settings
 
@@ -89,20 +92,21 @@ def load_backend(settings: Dict[str, Any], frontend: Module, backend: Module) ->
 
 
 def create_password_file(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
-    """If file and path defined in settings doesn't exist, create it"""
+    """If file and path defined in settings doesn't exist, create it.
+    Also check for permissions on file."""
     if constants.SETTINGS_FILE_PATH not in settings:
         return False
     given_path = settings[constants.SETTINGS_FILE_PATH]
     # Path cannot be dir already
     if os.path.exists(given_path):
-        return not os.path.isdir(given_path)
+        return not os.path.isdir(given_path) and os.access(given_path, os.W_OK)
 
     # File doesn't exist make dir path and file
     try:
         os.makedirs(os.path.dirname(given_path), exist_ok=True)
         open(given_path, 'a').close()
         # Check read permisson
-        return os.access(given_path, os.R_OK)
+        return os.access(given_path, os.W_OK)
     except OSError:
         return False
 
@@ -117,8 +121,10 @@ def get_password(settings: Dict[str, Any], frontend: Module, backend: Module) ->
     return True
 
 def check_password(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
-    """Check if password is correct, and if not quit.  If settings has
-    IGNORE_ERRORS set, continue anyway"""
+    """Check if password is correct, and if not quit.
+
+    In future also check for settings IGNORE_ERRORS, and continue if
+    set."""
     if not frontend or not backend:
         return False
     try:
@@ -131,7 +137,8 @@ def check_password(settings: Dict[str, Any], frontend: Module, backend: Module) 
     return True
 
 def main(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
-    """If in interactive mode, clear screen so no passwords are left on display"""
+    """Transport messages between frontend and backend.  Loop until
+    frontend fails(if user types quit)"""
     while True:
         command = frontend.module.repl()
         ret = backend.module.process(command)
