@@ -37,6 +37,8 @@ COMMAND_DELETE_KEYWORD_HELP = "Specify which indices from search should be delet
 # Stats
 COMMAND_STATS = "stats"
 
+# Quit
+COMMAND_QUIT = "quit"
 
 # Response
 RESPONSE = "status"
@@ -76,6 +78,7 @@ DEFAULT_SETTINGS = {
         "DeleteInteractionCommand",
         "SearchInteractionCommand",
         "ViewInteractionCommand",
+        "QuitInteractionCommand",
     ],
 }
 
@@ -94,12 +97,14 @@ ADD_INTERACTION_KEY_MISSING = "Command - Add\
 \nPlease enter key which will represent this entry.\
 \nThen enter value. Value must end with two empty lines"
 
-HELP_INTERACTION = """Here you can see list of available commands.  Command
-can be represented by many synonyms and to call it you can usually type only
-first few letters.  If you want to cancel command press Ctrl+C, second time it
-closes whole application.  Commands sometimes have also faster usage when you
-can type arguments in one line (like sea google for search for google)."""
-HELP_AMBIGUOUS = "Sorry, command is ambiguous:"
+HELP_INTERACTION = """Here you can see list of available commands.  Command can be
+represented by many synonyms and to call it you can usually type only
+first few letters.  If you want to cancel command press Ctrl+C, second
+time it closes whole application.  Commands sometimes have also faster
+usage when you can type arguments in one line (like sea google for
+search for google).  If command take indices as parameters, you can
+usally specify more than one."""
+HELP_AMBIGUOUS = "Sorry, command is ambiguous, try entering more characters:"
 HELP_SEARCH_MANY = "Hint: To print other values, use show command"
 HELP_SHOW_COMMAND = """After search, you can show full entry key and value.
 Command takes as arguments indices returned by search"""
@@ -111,6 +116,7 @@ Key should be one word representing whole entry (for example url of webpage).
 Value can be more than one line long.  After entering value, enter two newlines
 in row which terminates command."""
 HELP_DELETE_COMMAND = """Delete specified entries."""
+HELP_QUIT_COMMAND = """Clear screen and exit password manager (equal to Ctrl-C)."""
 
 ### PARAMETERS ###
 

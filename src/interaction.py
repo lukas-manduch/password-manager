@@ -11,7 +11,6 @@ manager - parsing input displaying messages etc.
 
 import abc
 from contextlib import suppress
-import os
 from pprint import pprint
 from textwrap import TextWrapper
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -172,20 +171,24 @@ class InteractiveSession:
         command = data.get(constants.COMMAND, constants.RESPONSE_MISSING)
         values = data.get(constants.RESPONSE_VALUES, {})
         #error = data.get(constants.RESPONSE_ERROR, "")
+        success = False
 
         if response is constants.RESPONSE_OK and command:
             command_instance = self.get_command(command)
             # Pass dict/list/int/str correctly
             if isinstance(values, dict):
-                command_instance.call(**values)
+                success = command_instance.call(**values)
             else:
                 try:
-                    command_instance.call(*values)
+                    success = command_instance.call(*values)
                 except TypeError:
-                    command_instance.call(values)
+                    success = command_instance.call(values)
         else:
             print("Error")
-        return {} # TODO
+
+        if success:
+            return {constants.RESPONSE: constants.RESPONSE_OK} # TODO
+        return {constants.RESPONSE: constants.RESPONSE_ERROR}
 
 
     def repl(self) -> dict:
@@ -254,11 +257,6 @@ class InteractiveSession:
         if self.show_prompt:
             prompt = self.keyword + constants.PROMPT_SYMBOL
         return input(prompt).strip()
-
-    @staticmethod
-    def quit():
-        """This method should be called before exitting, to clear console"""
-        os.system('cls' if os.name == 'nt' else 'clear')
 
     @staticmethod
     def _find_command_by_keyword(keyword: str,

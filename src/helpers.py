@@ -24,7 +24,7 @@ class Module:
         """Call module process"""
         if self.module:
             return self.module.process(*args)
-        return None
+        return {constants.RESPONSE: constants.RESPONSE_ERROR}
 
 
 ################################################################################
@@ -135,9 +135,12 @@ def main(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     while True:
         command = frontend.module.repl()
         ret = backend.module.process(command)
-        frontend.module.process(ret)
+        if frontend.module.process(ret)[constants.RESPONSE] is not constants.RESPONSE_OK:
+            break
     return True
 
 def clear_screen(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
-    """Do something"""
+    """Send clear screen command to frontend"""
+    frontend.process({constants.COMMAND: constants.COMMAND_QUIT,
+                      constants.RESPONSE: constants.RESPONSE_OK}) # Hack for now
     return True

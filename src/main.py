@@ -14,8 +14,7 @@ INIT_LIST = [
     helpers.load_frontend,
     helpers.load_backend,
     helpers.check_password,
-    helpers.main,
-    helpers.clear_screen
+    helpers.main
 ]
 
 if __name__ == "__main__":
@@ -24,13 +23,10 @@ if __name__ == "__main__":
     BACKEND = helpers.Module(None)
     try:
         for func in INIT_LIST:
-            print(str(func))
             if not func(settings, FRONTEND, BACKEND):
                 print("Error")
+                print(str(func))
                 exit(1)
     except KeyboardInterrupt:
-        print("")
-        print("Interrupted")
-    print("Ok")
-    print(settings)
+        helpers.clear_screen(settings, FRONTEND, BACKEND)
     exit(0)

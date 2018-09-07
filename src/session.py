@@ -82,6 +82,9 @@ class SessionController:
         # STATS
         elif command is constants.COMMAND_STATS:
             ret = self.stats()
+        # QUIT
+        elif command is constants.COMMAND_QUIT:
+            ret = self.quit()
 
         return ret
 
@@ -165,6 +168,11 @@ class SessionController:
             ret[constants.RESPONSE_STATS_STATUS] = constants.RESPONSE_OK
             ret[constants.RESPONSE_STATS_DECRYPTION_RATE] = self.pass_file.success
         return self.ok_to_dict(constants.COMMAND_STATS, ret)
+
+    def quit(self):
+        """For now do nothing just return ok.  Later we can do some
+        cleanups/backups. """
+        return self.ok_to_dict(constants.COMMAND_QUIT)
 
     @staticmethod
     def error_to_dict(error_string: str) -> dict:

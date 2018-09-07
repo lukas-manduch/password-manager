@@ -5,6 +5,7 @@ defined in interaction
 # Disable no self use warning
 # pylint: disable=R0201
 
+import os
 from textwrap import TextWrapper
 from typing import Any, Dict, List, Tuple, Type
 
@@ -161,6 +162,8 @@ class DeleteInteractionCommand(interaction.InteractionCommand):
 
 COMMAND_MAP["DeleteInteractionCommand"] = DeleteInteractionCommand
 
+###########################################################################
+
 class ViewInteractionCommand(interaction.InteractionCommand):
     """View secret command"""
     COMMANDS = ['view', 'show']
@@ -195,3 +198,31 @@ class ViewInteractionCommand(interaction.InteractionCommand):
         return True
 
 COMMAND_MAP["ViewInteractionCommand"] = ViewInteractionCommand
+
+###########################################################################
+
+class QuitInteractionCommand(interaction.InteractionCommand):
+    """View secret command"""
+    COMMANDS = ['quit', 'exit']
+    COMMAND_NAME = constants.COMMAND_QUIT
+    HELP = constants.HELP_QUIT_COMMAND
+
+    def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
+        """Take whatever input eat all and return quit.
+
+        """
+        print("quitting")
+        return {constants.COMMAND: constants.COMMAND_QUIT}
+
+
+    def call(self, *args, **kwargs) -> bool:
+        """Try to clear screen and return false"""
+        self.cls()
+        return False
+
+    @staticmethod
+    def cls() -> None:
+        """Try to clear screen, so old output is deleted."""
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+COMMAND_MAP["QuitInteractionCommand"] = QuitInteractionCommand
