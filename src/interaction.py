@@ -12,6 +12,7 @@ manager - parsing input displaying messages etc.
 import abc
 from contextlib import suppress
 from pprint import pprint
+from pydoc import pager
 from textwrap import TextWrapper
 from typing import Any, Dict, List, Optional, Tuple, Type
 
@@ -220,7 +221,7 @@ class InteractiveSession:
             except InputNeeded as inpn:
                 self.keyword = inpn.key_name
                 if self.show_help and inpn.key_description:
-                    print(inpn.key_description)
+                    pager(inpn.key_description)
 
     def find_command(self, entry: str) -> InteractionCommand:
         """Try to find one command whose COMMANDS, are most similar to
