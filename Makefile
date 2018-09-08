@@ -17,6 +17,7 @@ lint: $(files)
 
 $(files):
 	pylint $@
+	$(py_exe) -m mypy $@
 
 travis: travis_install all
 

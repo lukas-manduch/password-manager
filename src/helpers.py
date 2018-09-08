@@ -31,7 +31,8 @@ class Module:
 ################################ INIT FUNCTIONS ################################
 ################################################################################
 
-# If one of these functions returns False, whole app stops with error.  In future, they will have possibilty to
+# If one of these functions returns False, whole app stops with error.
+# In future, they will have possibilty to
 
 def parse_arguments(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     """Parse program arguments and set them in SETTINGS"""
