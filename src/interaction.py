@@ -171,7 +171,7 @@ class InteractiveSession:
         response = data.get(constants.RESPONSE, constants.RESPONSE_MISSING)
         command = data.get(constants.COMMAND, constants.RESPONSE_MISSING)
         values = data.get(constants.RESPONSE_VALUES, {})
-        #error = data.get(constants.RESPONSE_ERROR, "")
+        error = data.get(constants.RESPONSE_ERROR, "")
         success = False
 
         if response is constants.RESPONSE_OK and command:
@@ -184,8 +184,10 @@ class InteractiveSession:
                     success = command_instance.call(*values)
                 except TypeError:
                     success = command_instance.call(values)
-        else:
+        elif response is constants.RESPONSE_ERROR:
             print("Error")
+            print(error)
+            success = True
 
         if success:
             return {constants.RESPONSE: constants.RESPONSE_OK} # TODO

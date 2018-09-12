@@ -149,7 +149,7 @@ class DeleteCommandTestCase(unittest.TestCase):
                              interaction.HelpInteractionCommand]
 
     # Dont print to test output
-    @unittest.mock.patch('interaction.print', unittest.mock.Mock())
+    @unittest.mock.patch('interaction.pager', unittest.mock.Mock())
     def test_command_wihtout_indices(self):
         interactive_session = interaction.InteractiveSession(self.command_list)
         input_mock = unittest.mock.Mock()
@@ -242,7 +242,7 @@ class InteractiveSessionTestCase(unittest.TestCase):
         self.assertEqual(args, (1,))
 
     # Dont print to test output
-    @unittest.mock.patch('interaction.print', unittest.mock.Mock())
+    @unittest.mock.patch('interaction.pager', unittest.mock.Mock())
     def test_keyboard_interrupt(self):
         """On first keyboard interrupt, command must be cancelled and on
         second exception thrown"""

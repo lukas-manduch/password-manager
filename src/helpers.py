@@ -143,7 +143,8 @@ def main(settings: Dict[str, Any], frontend: Module, backend: Module) -> bool:
     while True:
         command = frontend.module.repl()
         ret = backend.module.process(command)
-        if frontend.module.process(ret)[constants.RESPONSE] is not constants.RESPONSE_OK:
+        front_ret = frontend.module.process(ret)[constants.RESPONSE]
+        if front_ret is not constants.RESPONSE_OK:
             break
     return True
 

@@ -91,6 +91,11 @@ class AddInteractionCommand(interaction.InteractionCommand):
         # Get value
         if not value:
             current_value = self.value_to_list(additional_input)
+            # If current value is empty, this is first time here
+            if not current_value:
+                raise interaction.InputNeeded(
+                    key_name='1',
+                    key_description=constants.ADD_INTERACTION_VALUE_MISSING)
             # Check if value ends with two empty lines
             value = self.get_value_or_raise(current_value)
 
@@ -139,6 +144,7 @@ class DeleteInteractionCommand(interaction.InteractionCommand):
     """Delete command, deletes previous search results based on indices given"""
     COMMANDS = ['delete', 'remove']
     COMMAND_NAME = constants.COMMAND_DELETE
+    HELP = constants.HELP_DELETE_COMMAND
 
     def parse(self, user_input: str, additional_input: dict) -> Dict[str, Any]:
         """Take as input indices which should be deleted.  Indices are for
