@@ -221,7 +221,9 @@ class InteractiveSession:
             except InputNeeded as inpn:
                 self.keyword = inpn.key_name
                 if self.show_help and inpn.key_description:
-                    pager(inpn.key_description)
+                    # Ctrl-C breaks pager first, then whole app
+                    with suppress(KeyboardInterrupt):
+                        pager(inpn.key_description)
 
     def find_command(self, entry: str) -> InteractionCommand:
         """Try to find one command whose COMMANDS, are most similar to
