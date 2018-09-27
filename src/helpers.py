@@ -12,7 +12,7 @@ import session
 # pylint: disable=W0613
 
 class Module:
-    """Conevnience wrapper for modules (frontend and backend)"""
+    """Convenience wrapper for modules (frontend and backend)"""
     def __init__(self, module: Any) -> None:
         self.module = module
 

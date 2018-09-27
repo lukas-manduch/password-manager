@@ -115,6 +115,21 @@ class SessionControllerTestCase(unittest.TestCase):
             self.assertEqual(len(ret[constants.RESPONSE_VALUES]), 1)
             self.assertEqual(ret[constants.RESPONSE_VALUES][0]['key'], 'key2')
 
+    def test_show_invalid_index(self):
+        session_controller = session.SessionController(self.settings)
+        my_mock = unittest.mock.Mock(wraps=session_controller.show)
+        param = {constants.COMMAND: constants.COMMAND_SHOW,
+                 constants.COMMAND_SHOW_INDICES: [2, 3]}
+        session_controller.process({constants.COMMAND: constants.COMMAND_SEARCH,
+                                    constants.COMMAND_SEARCH_VALUE: "key1"})
+        with patch('session.SessionController.show', new=my_mock):
+            # Indices not specified
+            ret = session_controller.process(param)
+            self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
+
+
+        pass
+
     def test_delete_withou_search(self):
         session_cont = session.SessionController(self.settings)
         ret = session_cont.process({constants.COMMAND: constants.COMMAND_DELETE,

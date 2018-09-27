@@ -36,6 +36,15 @@ ForEach-Object     {
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
+        Write-Output("---------------------------------------")
+
+        Write-Output("PYFLAKES")
+        & $interpreter "-m", "pyflakes", $_.FullName 2>&1
+
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+
         Write-Output("***************************************")
         Write-Output("***************************************")
     }

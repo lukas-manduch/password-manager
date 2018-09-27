@@ -104,7 +104,7 @@ first few letters.  If you want to cancel command press Ctrl+C, second
 time it closes whole application.  Commands usually have two versions,
 fast form where you can specify everything on one line and complete
 form where command interactively asks you for data (like "add key value"
-for adding entry instead of just "add").  If command take indices as
+for adding entry instead of just add).  If command take indices as
 parameters, you can usally specify more than one."""
 HELP_AMBIGUOUS = "Sorry, command is ambiguous, try entering more characters:"
 HELP_SEARCH_MANY = "Hint: To print other values, use show command"
