@@ -20,9 +20,12 @@ from core import KeyValueStore
 
 
 class SessionController:
-    """Class grouping main functionality of password manager.  Input
-    should be passed to method process as dictionary.
-    """
+    """Class grouping main functionality of password manager.  Input should be
+    passed to method process as dictionary.
+
+    Variables:
+     search_indices - Indices from last search, specifying best matches [0] is
+     best.  Count is specified as argument to search"""
 
     def __init__(self, settings: dict) -> None:
         self.state = False # Valid or invalid state
@@ -93,9 +96,11 @@ class SessionController:
         you can specify which one you want to show. Default is all."""
         assert self.pass_file is not None
 
-        if indices is None:
+        if indices is None: # Show all matches
             indices = self.search_indices
+            indices = list(range(len(self.search_indices)))
         unique_indices = set(indices)
+
         if not unique_indices or max(unique_indices) >= len(self.search_indices):
             return self.error_to_dict(constants.RESPONSE_ERROR_OUT_OF_RANGE)
 

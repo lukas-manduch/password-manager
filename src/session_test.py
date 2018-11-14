@@ -17,16 +17,16 @@ class SessionControllerTestCase(unittest.TestCase):
             constants.SETTINGS_FILE_PATH : "abcd",
             constants.SETTINGS_PASSWORD : "bfeg",
         }
-        file_content = [("key1", "value1"),
-                        ("key2", "value2"),
-                        ("key3", "val3")]
+        self.file_content = [("key1", "value1"),
+                             ("key2", "value2"),
+                             ("key3", "val3")]
         self.mock = unittest.mock.MagicMock()
-        self.mock.__iter__.return_value = iter(file_content)
-        self.mock.__getitem__ = lambda s, x: file_content[x]
+        self.mock.__iter__.return_value = iter(self.file_content)
+        self.mock.__getitem__ = lambda s, x: self.file_content[x]
         self.passwords_patcher = patch('session.PasswordFileManager',
                                        return_value=self.mock)
         self.import_mock = self.passwords_patcher.start()
-        self.addCleanup(self.passwords_patcher.stop)
+        self.addCleanup(self.import_mock.stop)
 
     def test_invalid_command(self):
         session_controller = session.SessionController(self.settings)
@@ -85,6 +85,27 @@ class SessionControllerTestCase(unittest.TestCase):
         self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_OK)
         self.assertEqual(len(ret[constants.RESPONSE_VALUES]), 3)
 
+    def test_search_many_entries(self):
+        """Test for bug"""
+        file_contents = [("key1", "value1")] * 100000
+        file_contents.append(("key2", "value2"))
+        mock = unittest.mock.MagicMock()
+        mock.__iter__.return_value = list(iter(file_contents))
+        mock.__getitem__ = lambda s, x: file_contents[x]
+
+        with patch('session.PasswordFileManager', return_value=mock):
+
+            session_controller = session.SessionController(self.settings)
+            ret = session_controller.process(
+                {constants.COMMAND: constants.COMMAND_SEARCH,
+                 constants.COMMAND_SEARCH_VALUE: "2"}
+            )
+
+            self.assertEqual(constants.RESPONSE_OK, ret[constants.RESPONSE])
+            self.assertEqual(
+                "key2", ret[constants.RESPONSE_VALUES][0][constants.SECRET_KEY]
+            )
+
     def test_show_before_search(self):
         session_controller = session.SessionController(self.settings)
         my_mock = unittest.mock.Mock(wraps=session_controller.show)
@@ -117,18 +138,19 @@ class SessionControllerTestCase(unittest.TestCase):
 
     def test_show_invalid_index(self):
         session_controller = session.SessionController(self.settings)
-        my_mock = unittest.mock.Mock(wraps=session_controller.show)
-        param = {constants.COMMAND: constants.COMMAND_SHOW,
-                 constants.COMMAND_SHOW_INDICES: [2, 3]}
+        assert len(self.file_content) == 3
         session_controller.process({constants.COMMAND: constants.COMMAND_SEARCH,
                                     constants.COMMAND_SEARCH_VALUE: "key1"})
-        with patch('session.SessionController.show', new=my_mock):
-            # Indices not specified
-            ret = session_controller.process(param)
-            self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
-
-
-        pass
+        # Indices off by one
+        param = {constants.COMMAND: constants.COMMAND_SHOW,
+                 constants.COMMAND_SHOW_INDICES: [2, 3]}
+        ret = session_controller.process(param)
+        self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_ERROR)
+        # Correct indices
+        param = {constants.COMMAND: constants.COMMAND_SHOW,
+                 constants.COMMAND_SHOW_INDICES: [1, 2]}
+        ret = session_controller.process(param)
+        self.assertEqual(ret[constants.RESPONSE], constants.RESPONSE_OK)
 
     def test_delete_withou_search(self):
         session_cont = session.SessionController(self.settings)

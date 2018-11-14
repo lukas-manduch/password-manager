@@ -113,13 +113,13 @@ class AddCommandsTestCase(unittest.TestCase):
 
     def test_get_value_or_raise(self):
         inp = []
-        with self.assertRaises(interaction.InputNeeded) as _exc:
+        with self.assertRaises(interaction.InputNeeded):
             out = AddInteractionCommand.get_value_or_raise(inp)
         inp.append("abc")
-        with self.assertRaises(interaction.InputNeeded) as _exc:
+        with self.assertRaises(interaction.InputNeeded):
             out = AddInteractionCommand.get_value_or_raise(inp)
         inp.append("")
-        with self.assertRaises(interaction.InputNeeded) as _exc:
+        with self.assertRaises(interaction.InputNeeded):
             out = AddInteractionCommand.get_value_or_raise(inp)
         inp.append("")
         out = AddInteractionCommand.get_value_or_raise(inp)
