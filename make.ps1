@@ -2,6 +2,13 @@ param($lint = $false,
       $interpreter = "python.exe",
       $filematch = "." )
 
+$scriptpath = $MyInvocation.MyCommand.Path
+$dir = Split-Path $scriptpath
+
+Set-Location $dir
+
+$interpreter = "c:/Users/user1/source/virt/passman/Scripts/python.exe"
+
 write-host "Using interpreter $interpreter"
 
 $Script:ErrorActionPreference = "Continue"
