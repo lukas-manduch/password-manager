@@ -97,7 +97,6 @@ class SessionController:
         assert self.pass_file is not None
 
         if indices is None: # Show all matches
-            indices = self.search_indices
             indices = list(range(len(self.search_indices)))
         unique_indices = set(indices)
 
